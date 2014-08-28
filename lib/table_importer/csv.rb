@@ -11,7 +11,6 @@ module TableImporter
       @record_separator = !data[:record_separator].nil? && data[:record_separator].length > 0 ? SEPARATORS[data[:record_separator].to_sym] : "\n"
       @compulsory_headers = data[:compulsory_headers]
       @file = data[:content]
-      @file_path = data[:content].path
       @delete_empty_columns = File.size(@file) < 100000
       begin
         first_line = get_first_line
@@ -22,19 +21,14 @@ module TableImporter
         @preview_lines = file_has_no_content
         @headers = @headers_present ? first_line.split(@column_separator) : default_headers(100) if @headers.blank?
       rescue ArgumentError
-        retry_file
+        @file = clean_file(@file)
         retry
       end
     end
 
-    def retry_file
-      @file = clean_file(@file)
-      @file_path = @file.path
-    end
-
     def get_first_line
       begin
-        SmarterCSV.process(@file_path, default_options({:col_sep => @column_separator.present? ? @column_separator : "\n", :row_sep => @record_separator != nil ? @record_separator : "\n", :chunk_size => 8})) do |chunk|
+        SmarterCSV.process(@file.path, default_options({:col_sep => @column_separator.present? ? @column_separator : "\n", :row_sep => @record_separator != nil ? @record_separator : "\n", :chunk_size => 8})) do |chunk|
           if @headers_present
             return chunk.first.keys[0].to_s
           else
@@ -44,21 +38,6 @@ module TableImporter
       rescue EOFError
         raise Exceptions::EmptyFileImportError.new
       end
-    end
-
-    def convert_headers(provided_headers, mapped_headers, headers_present)
-      new_headers = []
-      old_headers = headers_present ? provided_headers : default_headers
-      old_headers.each_with_index do |key, index|
-        key_to_add = "column_#{index}".to_sym
-        mapped_headers.each do |new_key, value|
-          if value.to_s == index.to_s
-            key_to_add = new_key
-          end
-        end
-        new_headers << key_to_add
-      end
-      Hash[old_headers.zip(new_headers)]
     end
 
     def file_has_no_content
@@ -78,6 +57,10 @@ module TableImporter
       "csv"
     end
 
+    def get_headers
+      @headers
+    end
+
     def get_column_separator(first_line = get_first_line)
       return @column_separator if !@column_separator.nil? && @column_separator.length > 0
       separators = get_sep_count(first_line)
@@ -92,18 +75,14 @@ module TableImporter
       @record_separator = sort_separators(separators)
     end
 
-    def get_headers
-      @headers
-    end
-
     def get_preview_lines
       begin
         return clean_chunks([@preview_lines], @compulsory_headers, @delete_empty_columns)[0].symbolize_keys[:lines] if !@preview_lines.blank?
         if @delete_empty_columns
-          chunks = SmarterCSV.process(@file_path, default_options({:col_sep => @column_separator, :row_sep => @record_separator != nil ? @record_separator : "\n", :chunk_size => 50}))
+          chunks = SmarterCSV.process(@file.path, default_options({:col_sep => @column_separator, :row_sep => @record_separator != nil ? @record_separator : "\n", :chunk_size => 50}))
           return clean_chunks(chunks, @compulsory_headers, true)[0].symbolize_keys[:lines][0..7]
         end
-        SmarterCSV.process(@file_path, default_options({:col_sep => @column_separator, :row_sep => @record_separator != nil ? @record_separator : "\n", :chunk_size => 8})) do |chunk|
+        SmarterCSV.process(@file.path, default_options({:col_sep => @column_separator, :row_sep => @record_separator != nil ? @record_separator : "\n", :chunk_size => 8})) do |chunk|
           return clean_chunks([chunk], @compulsory_headers)[0].symbolize_keys[:lines][0..7]
         end
       rescue SmarterCSV::HeaderSizeMismatch
@@ -115,18 +94,32 @@ module TableImporter
       begin
         chunks = []
         if @headers_present
-          key_mapping = convert_headers(SmarterCSV.process(@file_path, default_options({:col_sep => @column_separator, :row_sep => @record_separator})).first.keys, @headers, @headers_present).delete_if{ |key, value| value.blank?}
-          chunks = SmarterCSV.process(@file_path, default_options({:chunk_size => chunk_size, :key_mapping => key_mapping, :remove_unmapped_keys => true, :user_provided_headers => nil}))
+          key_mapping = convert_headers(SmarterCSV.process(@file.path, default_options({:col_sep => @column_separator, :row_sep => @record_separator})).first.keys, @headers, @headers_present).delete_if{ |key, value| value.blank?}
+          chunks = SmarterCSV.process(@file.path, default_options({:chunk_size => chunk_size, :key_mapping => key_mapping, :remove_unmapped_keys => true, :user_provided_headers => nil}))
         else
-          user_provided_headers = convert_headers(SmarterCSV.process(@file_path, default_options({:col_sep => @column_separator, :row_sep => @record_separator})).first.keys, @headers, @headers_present).values
-          chunks = SmarterCSV.process(@file_path, default_options({:chunk_size => chunk_size, :user_provided_headers => user_provided_headers, :remove_empty_values => true}))
+          user_provided_headers = convert_headers(SmarterCSV.process(@file.path, default_options({:col_sep => @column_separator, :row_sep => @record_separator})).first.keys, @headers, @headers_present).values
+          chunks = SmarterCSV.process(@file.path, default_options({:chunk_size => chunk_size, :user_provided_headers => user_provided_headers, :remove_empty_values => true}))
         end
-        clean_chunks(chunks, @compulsory_headers)
+        clean_chunks(chunks, @compulsory_headers, delete_empty_columns)
       rescue ArgumentError
         @file = clean_file(@file)
-        @file_path = @file.path
         retry
       end
+    end
+
+    def convert_headers(provided_headers, mapped_headers, headers_present)
+      new_headers = []
+      old_headers = headers_present ? provided_headers : default_headers
+      old_headers.each_with_index do |key, index|
+        key_to_add = "column_#{index}".to_sym
+        mapped_headers.each do |new_key, value|
+          if value.to_s == index.to_s
+            key_to_add = new_key
+          end
+        end
+        new_headers << key_to_add
+      end
+      Hash[old_headers.zip(new_headers)]
     end
 
     # fix quote_char
