@@ -1,29 +1,5 @@
-# TableImporter
+=======
+table_importer
+==============
 
-TODO: Write a gem description
-
-## Installation
-
-Add this line to your application's Gemfile:
-
-    gem 'table_importer'
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
-
-    $ gem install table_importer
-
-## Usage
-
-TODO: Write usage instructions here
-
-## Contributing
-
-1. Fork it
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create new Pull Request
+Given a file (or a string) containing a container, along with options, it will return a hash of those values. Great for importing poorly formatter CSV files.
