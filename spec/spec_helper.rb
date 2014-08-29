@@ -2,8 +2,10 @@ require 'table_importer'
 require 'rubygems'
 require 'spork'
 require 'active_support/all'
+require 'coveralls'
 require 'table_importer/exceptions'
 require 'table_importer/source.rb'
+Coveralls.wear!
 
 Spork.prefork do
 
