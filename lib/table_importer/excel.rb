@@ -11,14 +11,14 @@ module TableImporter
         @compulsory_headers = data[:compulsory_headers]
         @delete_empty_columns = (File.size(@file_path) < 100000)
         @mapping = !data[:user_headers].blank? ? data[:user_headers] : data[:headers]
-        raise Exceptions::EmptyFileImportError.new if !@file.first_row
+        raise TableImporter::EmptyFileImportError.new if !@file.first_row
         if !data[:headers].nil?
           @headers = data[:headers]
         else
           @headers = @headers_present ? @file.row(1).map { |header| header.to_sym unless header.nil?} : default_headers
         end
       rescue NoMethodError
-        raise Exceptions::HeaderMismatchError.new
+        raise TableImporter::HeaderMismatchError.new
       end
     end
 
@@ -34,7 +34,7 @@ module TableImporter
           Roo::Excelx.new(@file_path).sheet(0)
         end
       rescue TypeError
-        raise Exceptions::IncorrectFileError.new
+        raise TableImporter::IncorrectFileError.new
       end
     end
 
@@ -51,7 +51,7 @@ module TableImporter
           clean_chunks([get_lines(start_point+1, end_point+1)], @compulsory_headers, @delete_empty_columns)[0][:lines][0..7]
         end
       rescue SystemStackError
-        raise Exceptions::EmptyFileImportError.new
+        raise TableImporter::EmptyFileImportError.new
       end
     end
 

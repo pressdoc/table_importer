@@ -117,7 +117,7 @@ describe TableImporter::Source do
     it 'raises an error when creating a source object' do
       begin
         TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/excel/no_content.xlsx"].join), :headers => "false", :type => "xls", :column_separator => "", :record_separator => ""})
-      rescue Exceptions::EmptyFileImportError => e
+      rescue TableImporter::EmptyFileImportError => e
         e.message
       end
     end
