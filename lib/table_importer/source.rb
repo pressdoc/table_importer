@@ -137,8 +137,10 @@ module TableImporter
 
       def remove_empty_columns(chunks, headers)
         chunks.each do |chunk|
-          headers.each do |header|
-            chunk[:lines][0][header] = "empty_column"
+          unless chunk[:lines].empty?
+            headers.each do |header|
+              chunk[:lines][0][header] = "empty_column"
+            end
           end
         end
         chunks
