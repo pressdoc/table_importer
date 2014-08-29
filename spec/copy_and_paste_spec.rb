@@ -1,7 +1,5 @@
 # encoding: UTF-8
 require 'spec_helper'
-require 'table_importer/source.rb'
-require 'table_importer/exceptions'
 
 describe TableImporter::Source do
 

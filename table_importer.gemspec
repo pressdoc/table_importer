@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.version       = TableImporter::VERSION
   spec.authors       = ["Nick Dowse"]
   spec.email         = ["nm.dowse@gmail.com"]
-  spec.description   = %q{Here's my description}
-  spec.summary       = %q{Here's my summary}
+  spec.description   = %q{Given a file (or a string) containing a container, along with options, it will return a hash of those values. Great for importing poorly formatted CSV files.}
+  spec.summary       = %q{Given a file (or a string) containing a container, along with options, it will return a hash of those values. Great for importing poorly formatted CSV files.}
   spec.homepage      = ""
   spec.license       = "MIT"
 
