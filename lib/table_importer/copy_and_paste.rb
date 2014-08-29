@@ -24,6 +24,11 @@ module TableImporter
 
     def data_conforms_pattern(col_sep, rec_sep)
       # Check to see if data is of bcc style
+      first_item = @data.split("\n")[1]
+      if first_item.present? && first_item.match(/\S@\S/) && !first_item.match(/;|,|\s/)
+        rec_sep = "\n"
+        col_sep = " "
+      end
       first_item = @data.split(",").first
       if first_item.present? && first_item.match(/\S@\S/)
         if first_item.match(/<(\S+@\S+)/)

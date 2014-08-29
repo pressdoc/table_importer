@@ -15,7 +15,7 @@ module TableImporter
         if !data[:headers].nil?
           @headers = data[:headers]
         else
-          @headers = @headers_present ? @file.row(1).map { |header| header.to_sym } : default_headers
+          @headers = @headers_present ? @file.row(1).map { |header| header.to_sym unless header.nil?} : default_headers
         end
       rescue NoMethodError
         raise Exceptions::HeaderMismatchError.new
