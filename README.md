@@ -1,4 +1,4 @@
-[![Gem Version](https://badge.fury.io/rb/table_importer.svg)](http://badge.fury.io/rb/table_importer) [![Build Status](https://travis-ci.org/pressdoc/table_importer.svg?branch=master)](https://travis-ci.org/pressdoc/table_importer) [![Coverage Status](https://coveralls.io/repos/pressdoc/table_importer/badge.png?branch=master)](https://coveralls.io/r/pressdoc/table_importer?branch=master)
+[![Gem Version](https://badge.fury.io/rb/table_importer.svg)](http://badge.fury.io/rb/table_importer) [![Build Status](https://travis-ci.org/pressdoc/table_importer.svg?branch=master)](https://travis-ci.org/pressdoc/table_importer) [![Coverage Status](https://coveralls.io/repos/pressdoc/table_importer/badge.png?branch=master)](https://coveralls.io/r/pressdoc/table_importer?branch=master) [![Code Climate](https://codeclimate.com/github/pressdoc/table_importer/badges/gpa.svg)](https://codeclimate.com/github/pressdoc/table_importer)
 
 ==============
 Table Importer
