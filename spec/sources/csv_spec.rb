@@ -100,7 +100,7 @@ describe TableImporter::Source do
     it 'raises an error when creating a source object' do
       begin
         TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/csv/no_content.csv"].join), :headers_present => true, :headers => nil, :user_headers => nil, :type => "csv", :column_separator => "", :record_separator => "", :compulsory_headers => {:email => true}})
-      rescue Exceptions::EmptyFileImportError => e
+      rescue TableImporter::EmptyFileImportError => e
         e.message
       end
     end

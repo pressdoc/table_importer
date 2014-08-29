@@ -128,7 +128,7 @@ describe TableImporter::Source do
     it 'raises an error when creating a source object' do
       expect{
         TableImporter::Source.new({:content => "", :headers_present => false, :headers => nil, :user_headers => nil, :type => "copy_and_paste", :col_sep => :comma, :rec_sep => :newline_mac, :compulsory_headers => {:email => true}})
-      }.to raise_error(Exceptions::EmptyFileImportError)
+      }.to raise_error(TableImporter::EmptyFileImportError)
     end
   end
 end

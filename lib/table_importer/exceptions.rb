@@ -1,4 +1,4 @@
-module Exceptions
+module TableImporter
 
   class ImportError < StandardError;
   end

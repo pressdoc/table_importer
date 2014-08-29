@@ -11,7 +11,7 @@ module TableImporter
     end
 
     def assign_data(content)
-      raise Exceptions::EmptyFileImportError.new if content.blank? || content[0..100].gsub(/[^A-Za-z0-9]/, '').blank?
+      raise TableImporter::EmptyFileImportError.new if content.blank? || content[0..100].gsub(/[^A-Za-z0-9]/, '').blank?
       content.gsub!(/\r\n|\r/, "\n")
       return content
     end
@@ -66,7 +66,7 @@ module TableImporter
           lines[0..7]
         end
       rescue StandardError
-        raise Exceptions::EmptyStringImportError.new
+        raise TableImporter::EmptyStringImportError.new
       end
     end
 

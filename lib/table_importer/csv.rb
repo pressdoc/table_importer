@@ -36,7 +36,7 @@ module TableImporter
           end
         end
       rescue EOFError
-        raise Exceptions::EmptyFileImportError.new
+        raise TableImporter::EmptyFileImportError.new
       end
     end
 
@@ -44,12 +44,12 @@ module TableImporter
       begin
         lines = get_preview_lines
         if lines.blank? || lines == 0
-          raise Exceptions::EmptyFileImportError.new
+          raise TableImporter::EmptyFileImportError.new
         else
           return lines
         end
       rescue NoMethodError
-        raise Exceptions::EmptyFileImportError.new
+        raise TableImporter::EmptyFileImportError.new
       end
     end
 
@@ -86,7 +86,7 @@ module TableImporter
           return clean_chunks([chunk], @compulsory_headers)[0].symbolize_keys[:lines][0..7]
         end
       rescue SmarterCSV::HeaderSizeMismatch
-        raise Exceptions::HeaderMismatchError.new
+        raise TableImporter::HeaderMismatchError.new
       end
     end
 

@@ -16,7 +16,7 @@ module TableImporter
       when 'xls', 'xlsx'
         @source = Excel.new(data)
       else
-        raise Exceptions::IncorrectFileError.new
+        raise TableImporter::IncorrectFileError.new
       end
       @source
     end
