@@ -1,7 +1,5 @@
 module TableImporter
-# require classes
-# require 'import_sources/excel_source'
-# require 'import_sources/string_source'
+
   class Source
 
     SEPARATORS = {comma: ",", space: " ", tab: "\t", newline_mac: "\n", semicolon: ";", pipe: "|", newline_windows: "\r\n", old_newline_mac: "\r"}
