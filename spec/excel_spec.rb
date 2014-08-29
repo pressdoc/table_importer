@@ -82,20 +82,6 @@ describe TableImporter::Source do
     end
   end
 
-  context 'when source is a large xls file with headers' do
-    before { skip }
-
-    it "has the correct number of lines" do
-      source = TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/excel/with_headers_large.xls"].join), :headers_present => true, :headers => nil, :user_headers => nil, :type => "xls", :column_separator => "", :record_separator => "", :compulsory_headers => {:email => true}})
-      source.get_lines(1, 10000).count.should eql(10000)
-    end
-
-    it "has the correct number of chunks" do
-      source = TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/excel/with_headers_large.xls"].join), :headers_present => true, :headers => {"first_name"=>"", "last_name"=>"", "salutation"=>"", "tag_list"=>"", "email"=>"0", "organization"=>"", "url"=>"", "phone"=>"", "job_title"=>"", "second_url"=>"", "notes"=>"", "twitter_username"=>"", "skype_username"=>"", "pinterest_username"=>"", "instagram_username"=>"", "facebook_username"=>"", "last_name_prefix"=>"", "second_email"=>"", "phone_mobile"=>"", "street"=>"", "street_number"=>"", "zipcode"=>"", "city"=>"", "country"=>""}, :user_headers => nil, :type => "xls", :column_separator => "", :record_separator => "", :compulsory_headers => {:email => true}})
-      source.get_chunks(50).count.should eql(216)
-    end
-  end
-
   context 'when source is an edge-case xls file without headers' do
     before(:each) do
       @source = TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/excel/edge_cases.xls"].join), :headers_present => false, :headers => nil, :user_headers => nil, :type => "xls", :column_separator => "", :record_separator => "", :compulsory_headers => {:email => true}})

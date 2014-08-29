@@ -68,33 +68,6 @@ describe TableImporter::Source do
     end
   end
 
-  context 'when source is a large csv file with headers' do
-
-  	before { skip }
-
-    before(:all) do
-      @source_headers = 'true'
-      @source = TableImporter::Source.new({:content => File.open([Dir.pwd, '/spec/files/csv/with_headers_large.csv'].join), :headers_present => true, :headers => nil, :user_headers => nil, :type => "csv", :column_separator => "", :record_separator => "", :compulsory_headers => {:email => true}})
-    end
-
-    it "creates a source object" do
-      TableImporter::Source.new({:content => File.open([Dir.pwd, '/spec/files/csv/with_headers_large.csv'].join), :headers_present => true, :headers => nil, :user_headers => nil, :type => "csv", :column_separator => "", :record_separator => "", :compulsory_headers => {:email => true}})
-    end
-
-    it "has the correct number of chunks" do
-      @source.get_chunks(4).count.should eql(2690)
-    end
-
-    it "does not have extra spaces in the final chunk" do
-      last = @source.get_chunks(4).last
-      (last[:errors].count + last[:lines].count).should eql(3)
-    end
-
-    after(:all) do
-      @source = nil
-    end
-  end
-
   context 'when source is an edge-case csv file without headers' do
     before(:each) do
       @source_headers = "false"
