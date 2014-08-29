@@ -79,10 +79,10 @@ module TableImporter
       begin
         return clean_chunks([@preview_lines], @compulsory_headers, @delete_empty_columns)[0].symbolize_keys[:lines] if !@preview_lines.blank?
         if @delete_empty_columns
-          chunks = SmarterCSV.process(@file.path, default_options({:col_sep => @column_separator, :row_sep => @record_separator != nil ? @record_separator : "\n", :chunk_size => 50}))
+          chunks = SmarterCSV.process(@file.path, default_options({:row_sep => @record_separator != nil ? @record_separator : "\n", :chunk_size => 50}))
           return clean_chunks(chunks, @compulsory_headers, true)[0].symbolize_keys[:lines][0..7]
         end
-        SmarterCSV.process(@file.path, default_options({:col_sep => @column_separator, :row_sep => @record_separator != nil ? @record_separator : "\n", :chunk_size => 8})) do |chunk|
+        SmarterCSV.process(@file.path, default_options({:row_sep => @record_separator != nil ? @record_separator : "\n", :chunk_size => 8})) do |chunk|
           return clean_chunks([chunk], @compulsory_headers)[0].symbolize_keys[:lines][0..7]
         end
       rescue SmarterCSV::HeaderSizeMismatch
@@ -90,17 +90,22 @@ module TableImporter
       end
     end
 
-    def get_chunks(chunk_size, delete_empty_columns = false)
+    # this is horrendously slow
+    def get_lines(start, number_of_lines)
+      get_chunks(50)[start..(start + number_of_lines)]
+    end
+
+    def get_chunks(chunk_size)
       begin
         chunks = []
         if @headers_present
-          key_mapping = convert_headers(SmarterCSV.process(@file.path, default_options({:col_sep => @column_separator, :row_sep => @record_separator})).first.keys, @headers, @headers_present).delete_if{ |key, value| value.blank?}
+          key_mapping = convert_headers(SmarterCSV.process(@file.path, default_options).first.keys, @headers, @headers_present).delete_if{ |key, value| value.blank?}
           chunks = SmarterCSV.process(@file.path, default_options({:chunk_size => chunk_size, :key_mapping => key_mapping, :remove_unmapped_keys => true, :user_provided_headers => nil}))
         else
-          user_provided_headers = convert_headers(SmarterCSV.process(@file.path, default_options({:col_sep => @column_separator, :row_sep => @record_separator})).first.keys, @headers, @headers_present).values
+          user_provided_headers = convert_headers(SmarterCSV.process(@file.path, default_options).first.keys, @headers, @headers_present).values
           chunks = SmarterCSV.process(@file.path, default_options({:chunk_size => chunk_size, :user_provided_headers => user_provided_headers, :remove_empty_values => true}))
         end
-        clean_chunks(chunks, @compulsory_headers, delete_empty_columns)
+        clean_chunks(chunks, @compulsory_headers, @delete_empty_columns)
       rescue ArgumentError
         @file = clean_file(@file)
         retry
