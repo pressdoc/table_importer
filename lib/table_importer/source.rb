@@ -3,9 +3,6 @@ module TableImporter
   class Source
 
     SEPARATORS = {comma: ",", space: " ", tab: "\t", newline_mac: "\n", semicolon: ";", pipe: "|", newline_windows: "\r\n", old_newline_mac: "\r"}
-    require 'table_importer/csv'
-    require 'table_importer/copy_and_paste'
-    require 'table_importer/excel'
 
     def initialize (data)
       case data[:type]
@@ -147,3 +144,7 @@ module TableImporter
       end
   end
 end
+
+require 'table_importer/csv'
+require 'table_importer/copy_and_paste'
+require 'table_importer/excel'
