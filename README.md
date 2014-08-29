@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/pressdoc/table_importer.svg?branch=master)](https://travis-ci.org/pressdoc/table_importer)
+
 ==============
 Table Importer
 ==============
