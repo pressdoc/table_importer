@@ -7,8 +7,7 @@ module TableImporter
     def initialize(data)
       @headers_present = data[:headers_present] # user has indicated headers are provided
       @headers = data[:headers]
-      @column_separator = SEPARATORS[data[:column_separator].to_sym] if !data[:column_separator].nil?
-      @record_separator = !data[:record_separator].nil? && data[:record_separator].length > 0 ? SEPARATORS[data[:record_separator].to_sym] : "\n"
+      @column_separator, @record_separator = initialize_separators(data[:col_sep], data[:rec_sep])
       @compulsory_headers = data[:compulsory_headers]
       @file = data[:content]
       @delete_empty_columns = File.size(@file) < 100000
@@ -18,12 +17,18 @@ module TableImporter
           raise ArgumentError
         end
         get_column_separator(first_line)
-        @preview_lines = file_has_no_content
+        raise TableImporter::EmptyFileImportError.new if file_has_no_content
         @headers = @headers_present ? first_line.split(@column_separator) : default_headers(100) if @headers.blank?
       rescue ArgumentError
         @file = clean_file(@file)
         retry
       end
+    end
+
+    def initialize_separators(col_sep, rec_sep)
+      col_sep = SEPARATORS[data[:column_separator].to_sym] if !data[:column_separator].nil?
+      rec_sep = !data[:record_separator].nil? && data[:record_separator].length > 0 ? SEPARATORS[data[:record_separator].to_sym] : "\n"
+      return col_sep, rec_sep
     end
 
     def get_first_line
@@ -44,7 +49,7 @@ module TableImporter
       begin
         lines = get_preview_lines
         if lines.blank? || lines == 0
-          raise TableImporter::EmptyFileImportError.new
+          return true
         else
           return lines
         end
@@ -77,13 +82,8 @@ module TableImporter
 
     def get_preview_lines
       begin
-        return clean_chunks([@preview_lines], @compulsory_headers, @delete_empty_columns)[0].symbolize_keys[:lines] if !@preview_lines.blank?
-        if @delete_empty_columns
-          chunks = SmarterCSV.process(@file.path, default_options({:row_sep => @record_separator != nil ? @record_separator : "\n", :chunk_size => 50}))
-          return clean_chunks(chunks, @compulsory_headers, true)[0].symbolize_keys[:lines][0..7]
-        end
         SmarterCSV.process(@file.path, default_options({:row_sep => @record_separator != nil ? @record_separator : "\n", :chunk_size => 8})) do |chunk|
-          return clean_chunks([chunk], @compulsory_headers)[0].symbolize_keys[:lines][0..7]
+          return clean_chunks([chunk], @compulsory_headers, @delete_empty_columns)[0].symbolize_keys[:lines][0..7]
         end
       rescue SmarterCSV::HeaderSizeMismatch
         raise TableImporter::HeaderMismatchError.new
@@ -97,14 +97,7 @@ module TableImporter
 
     def get_chunks(chunk_size)
       begin
-        chunks = []
-        if @headers_present
-          key_mapping = convert_headers(SmarterCSV.process(@file.path, default_options).first.keys, @headers, @headers_present).delete_if{ |key, value| value.blank?}
-          chunks = SmarterCSV.process(@file.path, default_options({:chunk_size => chunk_size, :key_mapping => key_mapping, :remove_unmapped_keys => true, :user_provided_headers => nil}))
-        else
-          user_provided_headers = convert_headers(SmarterCSV.process(@file.path, default_options).first.keys, @headers, @headers_present).values
-          chunks = SmarterCSV.process(@file.path, default_options({:chunk_size => chunk_size, :user_provided_headers => user_provided_headers, :remove_empty_values => true}))
-        end
+        chunks = @headers_present ? chunks_with_headers(chunk_size) : chunks_without_headers(chunk_size)
         clean_chunks(chunks, @compulsory_headers, @delete_empty_columns)
       rescue ArgumentError
         @file = clean_file(@file)
@@ -112,23 +105,35 @@ module TableImporter
       end
     end
 
+    def chunks_with_headers(chunk_size)
+      key_mapping = convert_headers(SmarterCSV.process(@file.path, default_options).first.keys, @headers, @headers_present).delete_if{ |key, value| value.blank?}
+      SmarterCSV.process(@file.path, default_options({:chunk_size => chunk_size, :key_mapping => key_mapping, :remove_unmapped_keys => true, :user_provided_headers => nil}))
+    end
+
+    def chunks_without_headers(chunk_size)
+      user_provided_headers = convert_headers(SmarterCSV.process(@file.path, default_options).first.keys, @headers, @headers_present).values
+      SmarterCSV.process(@file.path, default_options({:chunk_size => chunk_size, :user_provided_headers => user_provided_headers, :remove_empty_values => true}))
+    end
+
     def convert_headers(provided_headers, mapped_headers, headers_present)
       new_headers = []
       old_headers = headers_present ? provided_headers : default_headers
       old_headers.each_with_index do |key, index|
-        key_to_add = "column_#{index}".to_sym
-        mapped_headers.each do |new_key, value|
-          if value.to_s == index.to_s
-            key_to_add = new_key
-          end
-        end
-        new_headers << key_to_add
+        new_headers << map_headers(mapped_headers, index)
       end
       Hash[old_headers.zip(new_headers)]
     end
 
-    # fix quote_char
-    # bit of a hack here to provide the correct number of default headers to the user (rather than just 100)
+    def map_headers(mapped_headers, index)
+      key_to_add = "column_#{index}".to_sym
+      mapped_headers.each do |new_key, value|
+        if value.to_s == index.to_s
+          key_to_add = new_key
+        end
+      end
+      key_to_add
+    end
+
     def default_options(options = {})
       {:col_sep => @column_separator, :row_sep => @record_separator, :force_simple_split => true, :strip_chars_from_headers => /[\-"]/, :remove_empty_values => false,
         :verbose => false, :headers_in_file => @headers_present, :convert_values_to_numeric => false,
