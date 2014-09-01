@@ -130,7 +130,7 @@ module TableImporter
     # fix quote_char
     # bit of a hack here to provide the correct number of default headers to the user (rather than just 100)
     def default_options(options = {})
-      {:col_sep => @column_separator, :row_sep => @record_separator, :quote_char => "‱", :remove_empty_values => false,
+      {:col_sep => @column_separator, :row_sep => @record_separator, :force_simple_split => true, :strip_chars_from_headers => /[\-"]/, :remove_empty_values => false,
         :verbose => false, :headers_in_file => @headers_present, :convert_values_to_numeric => false,
         :user_provided_headers => @headers_present ? (@headers == nil || @headers == {} ? nil : @headers) : default_headers(100)}.merge(options)
     end
