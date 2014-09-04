@@ -7,7 +7,7 @@ module TableImporter
     def initialize(data)
       @headers_present = data[:headers_present] # user has indicated headers are provided
       @headers = data[:headers]
-      @column_separator, @record_separator = initialize_separators(data[:col_sep], data[:rec_sep])
+      @column_separator, @record_separator = initialize_separators(data[:column_separator], data[:record_separator])
       @compulsory_headers = data[:compulsory_headers]
       @file = data[:content]
       @delete_empty_columns = File.size(@file) < 100000
@@ -17,7 +17,7 @@ module TableImporter
           raise ArgumentError
         end
         get_column_separator(first_line)
-        raise TableImporter::EmptyFileImportError.new if file_has_no_content
+        raise TableImporter::EmptyFileImportError.new unless file_has_content
         @headers = @headers_present ? first_line.split(@column_separator) : default_headers(100) if @headers.blank?
       rescue ArgumentError
         @file = clean_file(@file)
@@ -26,8 +26,8 @@ module TableImporter
     end
 
     def initialize_separators(col_sep, rec_sep)
-      col_sep = SEPARATORS[data[:column_separator].to_sym] if !data[:column_separator].nil?
-      rec_sep = !data[:record_separator].nil? && data[:record_separator].length > 0 ? SEPARATORS[data[:record_separator].to_sym] : "\n"
+      col_sep = SEPARATORS[col_sep.to_sym] if !col_sep.nil?
+      rec_sep = !rec_sep.nil? && rec_sep.length > 0 ? SEPARATORS[rec_sep.to_sym] : "\n"
       return col_sep, rec_sep
     end
 
@@ -45,16 +45,16 @@ module TableImporter
       end
     end
 
-    def file_has_no_content
+    def file_has_content
       begin
         lines = get_preview_lines
         if lines.blank? || lines == 0
-          return true
+          return false
         else
-          return lines
+          return true
         end
       rescue NoMethodError
-        raise TableImporter::EmptyFileImportError.new
+        false
       end
     end
 
@@ -145,6 +145,8 @@ module TableImporter
       import = Tempfile.new(["import", ".xls"], :encoding => "UTF-8")
       import.write(contents.force_encoding('UTF-8').encode('UTF-16', :invalid => :replace, :replace => '?').encode('UTF-8').gsub!(/\r\n|\r/, "\n"))
       import.close
+      SEPARATORS.except!(:newline_windows, :old_newline_mac)
+      @record_separator = "\n"
       return import
     end
   end
