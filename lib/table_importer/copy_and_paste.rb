@@ -4,7 +4,7 @@ module TableImporter
 
     def initialize(data)
       @data = assign_data(data[:content])
-      @column_separator, @record_separator = assign_separators(data[:col_sep], data[:rec_sep])
+      @column_separator, @record_separator = assign_separators(data[:column_separator], data[:record_separator])
       @headers, @headers_present = assign_headers(data[:headers], data[:headers_present])
       @compulsory_headers = data[:compulsory_headers]
       @delete_empty_columns = @data.length < 50000
