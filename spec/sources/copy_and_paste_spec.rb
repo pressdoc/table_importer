@@ -6,7 +6,9 @@ describe TableImporter::Source do
   context 'when source is a string it' do
 
     before(:each) do
-      @source = TableImporter::Source.new({:content => "nick@pr.co, dennis@pr.co, lorenzo@pr.co", :headers_present => false, :headers => nil, :user_headers => nil, :type => "copy_and_paste", :column_separator => "", :record_separator => "", :compulsory_headers => {:email => true}})
+      @source = TableImporter::Source.new({
+        :content => "nick@pr.co\ndennis@pr.co\nlorenzo@pr.co",
+        :headers_present => false, :headers => nil, :user_headers => nil, :type => "copy_and_paste", :column_separator => "", :record_separator => "", :compulsory_headers => {:email => true}})
     end
 
     it "creates a source object" do
@@ -14,7 +16,9 @@ describe TableImporter::Source do
     end
 
     it "gets the correct copy and paste chunks" do
-      source = TableImporter::Source.new({:content => "nick@pr.co, dennis@pr.co, lorenzo@pr.co", :headers_present => false, :headers => {"first_name"=>"", "last_name"=>"", "salutation"=>"", "tag_list"=>"", "email"=>"0", "organization"=>"", "url"=>"", "phone"=>"", "job_title"=>"", "second_url"=>"", "notes"=>"", "twitter_username"=>"", "skype_username"=>"", "pinterest_username"=>"", "instagram_username"=>"", "facebook_username"=>"", "last_name_prefix"=>"", "second_email"=>"", "phone_mobile"=>"", "street"=>"", "street_number"=>"", "zipcode"=>"", "city"=>"", "country"=>""}, :user_headers => nil, :type => "copy_and_paste", :column_separator => :space, :record_separator => :comma, :compulsory_headers => {:email => true}})
+      source = TableImporter::Source.new({
+        :content => "nick@pr.co, dennis@pr.co, lorenzo@pr.co",
+        :headers_present => false, :headers => {"first_name"=>"", "last_name"=>"", "salutation"=>"", "tag_list"=>"", "email"=>"0", "organization"=>"", "url"=>"", "phone"=>"", "job_title"=>"", "second_url"=>"", "notes"=>"", "twitter_username"=>"", "skype_username"=>"", "pinterest_username"=>"", "instagram_username"=>"", "facebook_username"=>"", "last_name_prefix"=>"", "second_email"=>"", "phone_mobile"=>"", "street"=>"", "street_number"=>"", "zipcode"=>"", "city"=>"", "country"=>""}, :user_headers => nil, :type => "copy_and_paste", :column_separator => :space, :record_separator => :comma, :compulsory_headers => {:email => true}})
       source.get_chunks.first[:lines].first[:email].should eql("nick@pr.co")
     end
 
@@ -39,11 +43,11 @@ describe TableImporter::Source do
     end
 
     it "can get the correct record separator" do
-      @source.get_record_separator.should eql(:old_newline_mac)
+      @source.get_record_separator.should eql(:newline_mac)
     end
 
     it "can get the correct column separator" do
-      @source.get_column_separator.should eql(:old_newline_mac)
+      @source.get_column_separator.should eql(:space)
     end
 
     it "has the correct type" do
