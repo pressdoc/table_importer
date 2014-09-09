@@ -44,11 +44,11 @@ module TableImporter
 
     def get_preview_lines(start_point = 0, end_point = 10)
       begin
-        if clean_chunks([get_lines(start_point, end_point)], @compulsory_headers)[0][:lines].first.nil?
+        if clean_chunks([get_lines(start_point, end_point)], {})[0][:lines].first.nil?
           get_preview_lines(start_point+10, end_point+10)
         else
           @headers = @mapping.present? ? convert_headers : @headers
-          clean_chunks([get_lines(start_point+1, end_point+1)], @compulsory_headers, @delete_empty_columns)[0][:lines][0..7]
+          clean_chunks([get_lines(start_point+1, end_point+1)], {}, @delete_empty_columns)[0][:lines][0..7]
         end
       rescue SystemStackError
         raise TableImporter::EmptyFileImportError.new

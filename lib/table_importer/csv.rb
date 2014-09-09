@@ -83,7 +83,7 @@ module TableImporter
     def get_preview_lines
       begin
         SmarterCSV.process(@file.path, default_options({:row_sep => @record_separator != nil ? @record_separator : "\n", :chunk_size => 8})) do |chunk|
-          return clean_chunks([chunk], @compulsory_headers, @delete_empty_columns)[0].symbolize_keys[:lines][0..7]
+          return clean_chunks([chunk], {}, @delete_empty_columns)[0].symbolize_keys[:lines][0..7]
         end
       rescue SmarterCSV::HeaderSizeMismatch
         raise TableImporter::HeaderMismatchError.new

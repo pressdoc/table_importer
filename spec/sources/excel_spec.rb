@@ -35,7 +35,7 @@ describe TableImporter::Source do
     end
 
     it "gets the preview lines" do
-      @source.get_preview_lines.count.should eql(5)
+      @source.get_preview_lines.count.should eql(6)
     end
 
     it "has the correct type" do
@@ -105,6 +105,21 @@ describe TableImporter::Source do
       source = TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/excel/edge_cases.xls"].join), :headers_present => false, :headers => {"first_name"=>"", "last_name"=>"", "salutation"=>"", "tag_list"=>"", "email"=>"0", "organization"=>"", "url"=>"", "phone"=>"", "job_title"=>"", "second_url"=>"", "notes"=>"", "twitter_username"=>"", "skype_username"=>"", "pinterest_username"=>"", "instagram_username"=>"", "facebook_username"=>"", "last_name_prefix"=>"", "second_email"=>"", "phone_mobile"=>"", "street"=>"", "street_number"=>"", "zipcode"=>"", "city"=>"", "country"=>""}, :user_headers => nil, :type => "xls", :column_separator => "", :record_separator => "", :compulsory_headers => {:email => true}})
       last_chunk = source.get_chunks(4).last
       (last_chunk[:lines].count + last_chunk[:errors].count).should eql(1)
+    end
+
+    after(:each) do
+      @source = nil
+    end
+  end
+
+  context 'when source has empty lines' do
+
+    before(:each) do
+      @source = TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/excel/empty_lines.xlsx"].join), :headers_present => false, :headers => nil, :user_headers => nil, :type => "xls", :column_separator => "", :record_separator => "", :compulsory_headers => {:email => true}})
+    end
+
+    it "does not throw an error" do
+      expect {@source.get_preview_lines}.to_not raise_error
     end
 
     after(:each) do
