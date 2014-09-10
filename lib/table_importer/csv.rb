@@ -33,7 +33,7 @@ module TableImporter
 
     def get_first_line
       begin
-        SmarterCSV.process(@file.path, default_options({:col_sep => @column_separator.present? ? @column_separator : "\n", :row_sep => @record_separator != nil ? @record_separator : "\n", :chunk_size => 8})) do |chunk|
+        SmarterCSV.process(@file.path, default_options({:col_sep => @column_separator.present? ? @column_separator : "\n", :row_sep => @record_separator != nil ? @record_separator : "\n", :chunk_size => 2})) do |chunk|
           if @headers_present
             return chunk.first.keys[0].to_s
           else
@@ -80,10 +80,13 @@ module TableImporter
       @record_separator = sort_separators(separators)
     end
 
-    def get_preview_lines
+    def get_preview_lines(start = 0, finish = 7, chunk_size = 8)
       begin
-        SmarterCSV.process(@file.path, default_options({:row_sep => @record_separator != nil ? @record_separator : "\n", :chunk_size => 8})) do |chunk|
-          return clean_chunks([chunk], {}, @delete_empty_columns)[0].symbolize_keys[:lines][0..7]
+        SmarterCSV.process(@file.path, default_options({:row_sep => @record_separator != nil ? @record_separator : "\n", :chunk_size => chunk_size})) do |chunk|
+          cleaned_chunk = clean_chunks([chunk], @compulsory_headers, @delete_empty_columns)[0].symbolize_keys[:lines]
+          return cleaned_chunk[start..finish] if cleaned_chunk.first.present?
+          @headers_present = false
+          get_preview_lines(start+8, finish+8, chunk_size+8)
         end
       rescue SmarterCSV::HeaderSizeMismatch
         raise TableImporter::HeaderMismatchError.new
@@ -143,11 +146,18 @@ module TableImporter
     def clean_file(file)
       contents = file.read
       import = Tempfile.new(["import", ".xls"], :encoding => "UTF-8")
-      import.write(contents.force_encoding('UTF-8').encode('UTF-16', :invalid => :replace, :replace => '?').encode('UTF-8').gsub!(/\r\n|\r/, "\n"))
+      utf8_content = contents.force_encoding('UTF-8').encode('UTF-16', :invalid => :replace, :replace => '?').encode('UTF-8').gsub!(/\r\n|\r/, "\n").squeeze("\n")
+      clean_contents = utf8_content[0] == "\n" ? utf8_content[1..-1] : utf8_content
+      import.write(clean_contents)
       import.close
+      reset_separators
+      return import
+    end
+
+    def reset_separators
       SEPARATORS.except!(:newline_windows, :old_newline_mac)
       @record_separator = "\n"
-      return import
+      @column_separator = ""
     end
   end
 end

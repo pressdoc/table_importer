@@ -161,4 +161,3 @@ end
 require 'table_importer/csv'
 require 'table_importer/copy_and_paste'
 require 'table_importer/excel'
-require 'table_importer/exceptions'
