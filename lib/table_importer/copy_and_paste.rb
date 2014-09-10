@@ -4,7 +4,7 @@ module TableImporter
 
     def initialize(data)
       @data = assign_data(data[:content])
-      @column_separator, @record_separator = assign_separators(data[:col_sep], data[:rec_sep])
+      @column_separator, @record_separator = assign_separators(data[:column_separator], data[:record_separator])
       @headers, @headers_present = assign_headers(data[:headers], data[:headers_present])
       @compulsory_headers = data[:compulsory_headers]
       @delete_empty_columns = @data.length < 50000
@@ -59,7 +59,7 @@ module TableImporter
 
     def get_preview_lines(start_point = @headers_present ? 1 : 0, end_point = 10)
       begin
-        lines = clean_chunks([get_lines(start_point, end_point)], @compulsory_headers, @delete_empty_columns)[0][:lines]
+        lines = clean_chunks([get_lines(start_point, end_point)], {}, @delete_empty_columns)[0][:lines]
         if lines.first.nil?
           get_preview_lines(start_point+10, end_point+10)
         else

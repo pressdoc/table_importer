@@ -112,6 +112,36 @@ describe TableImporter::Source do
     end
   end
 
+  context 'when source has empty lines' do
+
+    before(:each) do
+      @source = TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/excel/empty_lines.xlsx"].join), :headers_present => false, :headers => nil, :user_headers => nil, :type => "xls", :column_separator => "", :record_separator => "", :compulsory_headers => {:email => true}})
+    end
+
+    it "does not throw an error" do
+      expect {@source.get_preview_lines}.to_not raise_error
+    end
+
+    after(:each) do
+      @source = nil
+    end
+  end
+
+  context 'when source has 20 empty lines at the beginning' do
+
+    before(:each) do
+      @source = TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/excel/empty_lines_at_start.xlsx"].join), :headers_present => true, :headers => nil, :user_headers => nil, :type => "xls", :column_separator => "", :record_separator => "", :compulsory_headers => {:email => true}})
+    end
+
+    it "does not throw an error" do
+      @source.get_preview_lines.count.should eql(6)
+    end
+
+    after(:each) do
+      @source = nil
+    end
+  end
+
   context 'when source is an empty xls file' do
 
     it 'raises an error when creating a source object' do

@@ -9,12 +9,8 @@ describe TableImporter::Source do
       @source = TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/csv/with_headers.csv"].join), :headers_present => true, :headers => nil, :user_headers => nil, :type => "csv", :column_separator => "", :record_separator => "", :compulsory_headers => {:email => true}})
     end
 
-    it "creates a source object" do
-      TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/csv/with_headers.csv"].join), :headers_present => true, :headers => nil, :user_headers => nil, :type => "csv", :column_separator => "", :record_separator => "", :compulsory_headers => {:email => true}})
-    end
-
     it "has the correct headers" do
-      @source.get_headers.should eql(["country", "medium", "salutation", "first_name|", "last_name", "email", "phone_number", "tags|"])
+      @source.get_headers.should eql(["country", "medium", "salutation", "first_name", "last_name", "email", "phone_number", "tags"])
     end
 
     it "has the correct number of chunks" do
@@ -103,6 +99,21 @@ describe TableImporter::Source do
       rescue TableImporter::EmptyFileImportError => e
         e.message
       end
+    end
+  end
+
+  context 'when source has empty lines at start' do
+
+    before(:each) do
+      @source = TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/csv/empty_lines_at_start.csv"].join), :headers_present => true, :headers => nil, :user_headers => nil, :type => "csv", :column_separator => "", :record_separator => "", :compulsory_headers => {:email => true}})
+    end
+
+    it "Gets the preview lines without error" do
+      @source.get_preview_lines.count.should eql(7)
+    end
+
+    after(:each) do
+      @source = nil
     end
   end
 end

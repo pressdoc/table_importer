@@ -2,7 +2,7 @@ module TableImporter
 
   class Source
 
-    SEPARATORS = {comma: ",", space: " ", tab: "\t", newline_mac: "\n", semicolon: ";", pipe: "|", newline_windows: "\r\n", old_newline_mac: "\r"}
+    SEPARATORS = {comma: ",", space: " ", tab: "\t", newline_mac: "\n", semicolon: ";", newline_windows: "\r\n", old_newline_mac: "\r"}
 
     def initialize (data)
       case data[:type]
@@ -77,7 +77,7 @@ module TableImporter
       chunks.each do |chunk|
         new_chunk = { :lines => [], :errors => []}
         chunk.each_with_index do |line, index|
-          line_empty = line_empty?(line)
+          line, line_empty = line_empty?(line)
           no_compulsory_headers, missing_header = check_compulsory_headers?(line, compulsory_headers)
           if line_empty || no_compulsory_headers
             new_chunk[:errors] << format_error(line, line_empty, no_compulsory_headers, compulsory_headers, missing_header)
@@ -85,7 +85,7 @@ module TableImporter
             if delete_empty_columns
               line.each do |key, value|
                 if value.present? && value.to_s.gsub(/[^A-Za-z0-9]/, '').present?
-                  empty_headers.delete(key)
+                  empty_headers.delete(clean_item(key).to_sym)
                 end
               end
             end
@@ -102,7 +102,20 @@ module TableImporter
 
     private
       def line_empty?(line)
-        line.all?{ |item_key, item_value| line_item_is_garbage?(item_value)}
+        line = clean_line(line)
+        return line, line.all?{ |item_key, item_value| line_item_is_garbage?(item_value)} && line.all?{ |item_key, item_value| line_item_is_garbage?(item_key)}
+      end
+
+      def clean_line(line)
+        map = {}
+        line.each_pair do |key,value|
+          map[clean_item(key).to_sym] = clean_item(value)
+        end
+        map
+      end
+
+      def clean_item(item)
+        item.to_s.delete("\u0000").to_s.delete("\x00")
       end
 
       def check_compulsory_headers?(line, compulsory_headers)
