@@ -44,11 +44,11 @@ module TableImporter
 
     def get_preview_lines(start_point = 0, end_point = 10)
       begin
+        @headers = @mapping.present? && @mapping != false ? convert_headers : @headers
         lines = clean_chunks([get_lines(start_point, end_point)], @compulsory_headers)[0][:lines]
         if lines.first.nil?
           get_preview_lines(start_point+10, end_point+10)
         else
-          @headers = @mapping.present? ? convert_headers : @headers
           lines[0..8]
         end
       rescue SystemStackError
@@ -69,8 +69,9 @@ module TableImporter
     def convert_headers
       new_headers = @headers_present ? @file.row(1) : default_headers
       new_headers = default_headers(new_headers.count)
+      return new_headers unless @mapping
       @mapping.each do |key, value|
-        if value.to_i.to_s == value
+        if value.to_i.to_s == value.to_s
           new_headers[value.to_i] = key.to_sym
         end
       end

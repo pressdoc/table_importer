@@ -75,23 +75,7 @@ module TableImporter
       result = []
       empty_headers = chunks.first.first.keys
       chunks.each do |chunk|
-        new_chunk = { :lines => [], :errors => []}
-        chunk.each_with_index do |line, index|
-          line, line_empty = line_empty?(line)
-          no_compulsory_headers, missing_header = check_compulsory_headers?(line, compulsory_headers)
-          if line_empty || no_compulsory_headers
-            new_chunk[:errors] << format_error(line, line_empty, no_compulsory_headers, compulsory_headers, missing_header)
-          else
-            if delete_empty_columns
-              line.each do |key, value|
-                if value.present? && value.to_s.gsub(/[^A-Za-z0-9]/, '').present?
-                  empty_headers.delete(clean_item(key).to_sym)
-                end
-              end
-            end
-            new_chunk[:lines] << line
-          end
-        end
+        new_chunk, empty_headers = process_line(chunk, empty_headers, compulsory_headers, delete_empty_columns)
         result << new_chunk unless new_chunk[:lines] == [] && new_chunk[:errors] == []
       end
       if delete_empty_columns
@@ -100,64 +84,87 @@ module TableImporter
       result
     end
 
-    private
-      def line_empty?(line)
-        line = clean_line(line)
-        return line, line.all?{ |item_key, item_value| line_item_is_garbage?(item_value)} && line.all?{ |item_key, item_value| line_item_is_garbage?(item_key)}
-      end
+  private
 
-      def clean_line(line)
-        map = {}
-        line.each_pair do |key,value|
-          map[clean_item(key).to_sym] = clean_item(value)
+    def process_line(chunk, empty_headers, compulsory_headers, delete_empty_columns)
+      new_chunk = {:lines => [], :errors => []}
+      chunk.each_with_index do |line, index|
+        line, line_empty = line_empty?(line)
+        no_compulsory_headers, missing_header = check_compulsory_headers?(line, compulsory_headers) unless line_empty || compulsory_headers.blank?
+        if line_empty || no_compulsory_headers
+          new_chunk[:errors] << format_error(line, line_empty, no_compulsory_headers, compulsory_headers, missing_header)
+        else
+          check_empty_headers(line, empty_headers) if delete_empty_columns
+          new_chunk[:lines] << line
         end
-        map
       end
+      return new_chunk, empty_headers
+    end
 
-      def clean_item(item)
-        item.to_s.delete("\u0000").to_s.delete("\x00")
+    def check_empty_headers(line, empty_headers)
+      line.each do |key, value|
+        if value.present? && value.to_s.gsub(/[^A-Za-z0-9]/, '').present?
+          empty_headers.delete(clean_item(key).to_sym)
+        end
       end
+    end
 
-      def check_compulsory_headers?(line, compulsory_headers)
-        if compulsory_headers.key?(:email)
-          if line.key?(:email)
-            line[:email] = clean_email(line[:email])
-            return true, "email" if line[:email].nil? || !line[:email].to_s.match(/@\S/)
+    def line_empty?(line)
+      line = clean_line(line)
+      return line, line.all?{ |item_key, item_value| line_item_is_garbage?(item_value)} && line.all?{ |item_key, item_value| line_item_is_garbage?(item_key)}
+    end
+
+    def clean_line(line)
+      map = {}
+      line.each_pair do |key,value|
+        map[clean_item(key).to_sym] = clean_item(value)
+      end
+      map
+    end
+
+    def clean_item(item)
+      item.to_s.delete("\u0000").to_s.delete("\x00")
+    end
+
+    def check_compulsory_headers?(line, compulsory_headers)
+      if compulsory_headers.key?(:email)
+        if line.key?(:email)
+          line[:email] = clean_email(line[:email])
+          return true, "email" if line[:email].nil? || !line[:email].to_s.match(/@\S/)
+        end
+        return true, "email" if !line.values.any?{ |value| /@\S/ =~ value.to_s }
+      end
+      # here perform other checks for other compulsory headers we might have.
+      return false
+    end
+
+    def clean_email(email)
+      if email
+        email.to_s.gsub(/\A[^A-Za-z0-9]/, '').reverse.gsub(/\A[^A-Za-z0-9]/, '').reverse
+      end
+    end
+
+    def line_item_is_garbage?(item_value)
+      item_value.blank?
+    end
+
+    def format_error(line, line_empty, no_compulsory_headers, compulsory_headers, missing_header)
+      message = line_empty ? "it did not have any content" : " it did not contain this/these required headers: #{missing_header}"
+      {:level => :error, :message => "The following line was not imported because #{message}.", :data => {:line => line, :line_empty => line_empty, :headers => no_compulsory_headers}}
+    end
+
+    def remove_empty_columns(chunks, headers)
+      chunks.each do |chunk|
+        if chunk[:lines].present?
+          headers.each do |header|
+            chunk[:lines][0][header] = "empty_column"
           end
-          return true, "email" if !line.values.any?{ |value| /@\S/ =~ value.to_s }
-        end
-        # here perform other checks for other compulsory headers we might have.
-        return false
-      end
-
-      def clean_email(email)
-        if email
-          email.to_s.gsub(/\A[^A-Za-z0-9]/, '').reverse.gsub(/\A[^A-Za-z0-9]/, '').reverse
         end
       end
-
-      def line_item_is_garbage?(item_value)
-        item_value.blank?
-      end
-
-      def format_error(line, line_empty, no_compulsory_headers, compulsory_headers, missing_header)
-        message = line_empty ? "it did not have any content" : " it did not contain this/these required headers: #{missing_header}"
-        {:level => :error, :message => "The following line was not imported because #{message}.", :data => {:line => line, :line_empty => line_empty, :headers => no_compulsory_headers}}
-      end
-
-      def remove_empty_columns(chunks, headers)
-        chunks.each do |chunk|
-          unless chunk[:lines].empty?
-            headers.each do |header|
-              chunk[:lines][0][header] = "empty_column"
-            end
-          end
-        end
-        chunks
-      end
+      chunks
+    end
   end
 end
-
 require 'table_importer/csv'
 require 'table_importer/copy_and_paste'
 require 'table_importer/excel'
