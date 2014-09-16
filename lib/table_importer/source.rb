@@ -1,4 +1,4 @@
-module TableImporter
+  module TableImporter
 
   class Source
 
@@ -78,7 +78,7 @@ module TableImporter
         new_chunk = { :lines => [], :errors => []}
         chunk.each_with_index do |line, index|
           line, line_empty = line_empty?(line)
-          no_compulsory_headers, missing_header = check_compulsory_headers?(line, compulsory_headers)
+          no_compulsory_headers, missing_header = check_compulsory_headers?(line, compulsory_headers) unless line_empty || compulsory_headers.blank?
           if line_empty || no_compulsory_headers
             new_chunk[:errors] << format_error(line, line_empty, no_compulsory_headers, compulsory_headers, missing_header)
           else
