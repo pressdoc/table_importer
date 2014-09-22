@@ -51,7 +51,7 @@ module TableImporter
         else
           lines[0..8]
         end
-      rescue SystemStackError
+      rescue SystemStackError, NoMethodError
         raise TableImporter::EmptyFileImportError.new
       end
     end
