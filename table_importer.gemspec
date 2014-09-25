@@ -20,6 +20,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "spreadsheet", "0.9.1"
   spec.add_dependency 'roo'
+  spec.add_dependency 'google_drive'
   spec.add_dependency 'smarter_csv'
 
   spec.add_development_dependency "bundler", "~> 1.3"
