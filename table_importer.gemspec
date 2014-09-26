@@ -29,5 +29,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "coveralls"
   spec.add_development_dependency "spork"
   spec.add_development_dependency 'activesupport', '~> 4.1.5'
+  spec.add_development_dependency 'vcr'
+  spec.add_development_dependency 'webmock'
 
 end
