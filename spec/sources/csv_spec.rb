@@ -116,4 +116,19 @@ describe TableImporter::Source do
       @source = nil
     end
   end
+
+  context 'when source is badly encoded partway through the file' do
+
+    before(:each) do
+      @source = TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/csv/partway.csv"].join), :headers_present => false, :headers => nil, :user_headers => nil, :type => "csv", :column_separator => "", :record_separator => "", :compulsory_headers => {:email => true}})
+    end
+
+    it "Gets the first chunk without error" do
+      @source.get_chunks[0][:lines].count.should eql(50)
+    end
+
+    after(:each) do
+      @source = nil
+    end
+  end
 end

@@ -21,6 +21,7 @@ module TableImporter
         @headers = @headers_present ? first_line.split(@column_separator) : default_headers(100) if @headers.blank?
       rescue ArgumentError
         @file = clean_file(@file)
+        @column_separator = get_column_separator
         retry
       end
     end
@@ -35,9 +36,11 @@ module TableImporter
       begin
         SmarterCSV.process(@file.path, default_options({:col_sep => @column_separator.present? ? @column_separator : "\n", :row_sep => @record_separator != nil ? @record_separator : "\n", :chunk_size => 2})) do |chunk|
           if @headers_present
-            return chunk.first.keys[0].to_s
+            keys = chunk.first.keys
+            return keys.count == 1 ? keys[0].to_s : keys.join(@column_separator)
           else
-            return chunk.first.values[0].to_s
+            values = chunk.first.values
+            return values.count == 1 ? values[0].to_s : values.join(@column_separator)
           end
         end
       rescue EOFError
@@ -104,6 +107,7 @@ module TableImporter
         clean_chunks(chunks, @compulsory_headers, @delete_empty_columns)
       rescue ArgumentError
         @file = clean_file(@file)
+        @column_separator = get_column_separator
         retry
       end
     end
