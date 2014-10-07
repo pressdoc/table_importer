@@ -157,7 +157,7 @@ module TableImporter
     def reset_separators
       SEPARATORS.except!(:newline_windows, :old_newline_mac)
       @record_separator = "\n"
-      @column_separator = ""
+      @column_separator = get_column_separator
     end
   end
 end
