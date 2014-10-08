@@ -22,7 +22,7 @@ You should now be able to run the local tests:
 
 Interact with table_importer by creating a TableImporter instance, and then calling methods on that instance.
 
-  `TableImporter::Source.new({options})`
+  `importer = TableImporter::Source.new({options})`
 
 The options you pass in are:
 
@@ -87,9 +87,30 @@ There are a few ways to interact with the table importer:
   # Get the headers (either the first row if headers are provided, or else default headers
   puts importer.get_headers
    => "column_1, column_2, column_3"
-   
-  # Gets lines of input
-  # Optionally pass in start and end points, or else it will default to getting all lines
+  
+  # Get the first 8 lines (useful for providing a matching option for the user to map their own headers, like mailchimps contact import.
+  puts importer.get_preview_lines
+    => [{:column_1 => "r1c1", :column_2 => "r1c2", :column_3 => "r1c3"}, {:column_1 => "r2c1", :column_2 => "r2c2", :column_3 => "r2c3"} etc]
+  
+  # Get input chunked in an input size (size defaults to 50)
+  puts importer.get_chunks
+    => All input chunked into 50 line blocks.
+  
+  puts importer.get_chunks(25)
+    => All input chunked into 25 line blocks.
+  
+  # The format for the returned chunks is not a simple array of hashes, like get_preview_lines
+  puts importer.get_chunks(2)
+    => [{:lines => [{:column_1 => "r1c1", :column_2 => "r1c2", :column_3 => "r1c3"}, {:column_1 => "r2c1", :column_2 => "r2c2", :column_3 => "r2c3"}], :errors => []}, {:lines => [{:column_1 => "r3c1", :column_2 => "r3c2", :column_3 => "r3c3"}, {:column_1 => "r4c1", :column_2 => "r4c2", :column_3 => "r4c3"}], :errors => []}]
+
+  # The errors hash is for lines that don't contain the compulsory headers, are blank/empty, or the entire line contains no alphanumeric characters.
+
+  # Gets lines of input returned in an array of hashes (doesn't work for CSV yet)
+  # Pass in start and end points
+  puts importer.get_lines(0, 1)
+    => [{:column_1 => "r1c1", :column_2 => "r1c2", :column_3 => "r1c3"}]
+  
+  # Or let it default to getting all lines
   puts importer.get_lines
     => All of the lines
     
@@ -98,12 +119,4 @@ There are a few ways to interact with the table importer:
     
   puts importer.get_lines(5, -1)
     => Line 5 to the end of the input.
-    
-  # Get the first 8 lines (useful for providing a matching option for the user to map their own headers, like mailchimps contact import.
-  puts importer.get_preview_lines
-    => [{:column_1 => "r1c1", :column_2 => "r1c2", :column_3 => "r1c3"}, {:column_1 => "r2c1", :column_2 => "r2c2", :column_3 => "r2c3"} etc]
-  
-  # Get input chunked in an input size.
-  puts importer.get_chunks(25)
-    => All input chunked into 25 line blocks.
     
