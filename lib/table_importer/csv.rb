@@ -11,6 +11,16 @@ module TableImporter
       @compulsory_headers = data[:compulsory_headers]
       @file = data[:content]
       @delete_empty_columns = File.size(@file) < 100000
+      @headers = set_headers
+    end
+
+    def initialize_separators(col_sep, rec_sep)
+      col_sep = SEPARATORS[col_sep.to_sym] if !col_sep.nil?
+      rec_sep = !rec_sep.nil? && rec_sep.length > 0 ? SEPARATORS[rec_sep.to_sym] : "\n"
+      return col_sep, rec_sep
+    end
+
+    def set_headers
       begin
         first_line = get_first_line
         if first_line == 0
@@ -18,18 +28,15 @@ module TableImporter
         end
         get_column_separator(first_line)
         raise TableImporter::EmptyFileImportError.new unless file_has_content
-        @headers = @headers_present ? first_line.split(@column_separator) : default_headers(100) if @headers.blank?
+        if @headers.present?
+          return @headers
+        end
+        @headers_present ? first_line.split(@column_separator) : default_headers(100)
       rescue ArgumentError
         @file = clean_file(@file)
         @column_separator = get_column_separator
         retry
       end
-    end
-
-    def initialize_separators(col_sep, rec_sep)
-      col_sep = SEPARATORS[col_sep.to_sym] if !col_sep.nil?
-      rec_sep = !rec_sep.nil? && rec_sep.length > 0 ? SEPARATORS[rec_sep.to_sym] : "\n"
-      return col_sep, rec_sep
     end
 
     def get_first_line
@@ -89,7 +96,6 @@ module TableImporter
           cleaned_chunk = clean_chunks([chunk], @compulsory_headers, @delete_empty_columns)[0].symbolize_keys[:lines]
           return cleaned_chunk[start..finish] if cleaned_chunk.first.present?
           @headers_present = false
-          get_preview_lines(start+8, finish+8, chunk_size+8)
         end
       rescue SmarterCSV::HeaderSizeMismatch
         raise TableImporter::HeaderMismatchError.new
