@@ -5,7 +5,7 @@ module TableImporter
     def initialize(data)
       @data = assign_data(data[:content])
       @column_separator, @record_separator = assign_separators(data[:column_separator], data[:record_separator])
-      @headers, @headers_present = assign_headers(data[:headers], data[:headers_present])
+      @headers, @headers_present = assign_headers(data[:headers_present])
       @mapping = data[:user_headers]
       @compulsory_headers = data[:compulsory_headers]
       @delete_empty_columns = @data.length < 50000
@@ -40,8 +40,8 @@ module TableImporter
       return col_sep, rec_sep
     end
 
-    def assign_headers(headers, headers_present)
-      headers = headers_present ? get_first_line : get_headers if headers.blank?
+    def assign_headers(headers_present)
+      headers = headers_present ? get_first_line : get_headers
       return headers, headers_present
     end
 

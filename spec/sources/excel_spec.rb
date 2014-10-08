@@ -8,7 +8,7 @@ describe TableImporter::Source do
     context 'when mapping has not been set' do
 
       before(:each) do
-        @source = TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/excel/with_headers.xls"].join), :headers_present => true, :user_headers => nil, :user_headers => nil, :type => "xls", :column_separator => "", :record_separator => "", :compulsory_headers => {:email => true}})
+        @source = TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/excel/with_headers.xls"].join), :headers_present => true, :user_headers => nil, :type => "xls", :column_separator => "", :record_separator => "", :compulsory_headers => {:email => true}})
       end
 
       it "gets the preview lines" do
@@ -27,7 +27,7 @@ describe TableImporter::Source do
     context 'when mapping has been set' do
 
       before(:each) do
-        @source = TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/excel/with_headers.xls"].join), :headers_present => true, :headers => nil, :user_headers => {"first_name"=>"", "last_name"=>"", "salutation"=>"", "tag_list"=>"", "email"=>"0", "organization"=>"", "url"=>"", "phone"=>"", "job_title"=>"", "second_url"=>"", "notes"=>"", "twitter_username"=>"", "skype_username"=>"", "pinterest_username"=>"", "instagram_username"=>"", "facebook_username"=>"", "last_name_prefix"=>"", "second_email"=>"", "phone_mobile"=>"", "street"=>"", "street_number"=>"", "zipcode"=>"", "city"=>"", "country"=>""}, :type => "xls", :column_separator => "", :record_separator => "", :compulsory_headers => {:email => true}})
+        @source = TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/excel/with_headers.xls"].join), :headers_present => true, :user_headers => {"first_name"=>"", "last_name"=>"", "salutation"=>"", "tag_list"=>"", "email"=>"0", "organization"=>"", "url"=>"", "phone"=>"", "job_title"=>"", "second_url"=>"", "notes"=>"", "twitter_username"=>"", "skype_username"=>"", "pinterest_username"=>"", "instagram_username"=>"", "facebook_username"=>"", "last_name_prefix"=>"", "second_email"=>"", "phone_mobile"=>"", "street"=>"", "street_number"=>"", "zipcode"=>"", "city"=>"", "country"=>""}, :type => "xls", :column_separator => "", :record_separator => "", :compulsory_headers => {:email => true}})
       end
 
       it "has the correct headers" do
@@ -56,7 +56,7 @@ describe TableImporter::Source do
   context 'when source is an xls file without headers' do
     context 'when mapping has not been set' do
       before(:each) do
-        @source = TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/excel/without_headers.xls"].join), :headers_present => false, :headers => nil, :user_headers => nil, :type => "xls", :column_separator => "", :record_separator => "", :compulsory_headers => {:email => true}})
+        @source = TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/excel/without_headers.xls"].join), :headers_present => false, :user_headers => nil, :type => "xls", :column_separator => "", :record_separator => "", :compulsory_headers => {:email => true}})
       end
 
       it "has the correct number of columns" do
@@ -71,7 +71,7 @@ describe TableImporter::Source do
     context 'when mapping has been set' do
 
       before(:each) do
-        @source = TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/excel/without_headers.xls"].join), :headers_present => false, :headers => nil, :user_headers => {"first_name"=>"", "last_name"=>"", "salutation"=>"", "tag_list"=>"", "email"=>"0", "organization"=>"", "url"=>"", "phone"=>"", "job_title"=>"", "second_url"=>"", "notes"=>"", "twitter_username"=>"", "skype_username"=>"", "pinterest_username"=>"", "instagram_username"=>"", "facebook_username"=>"", "last_name_prefix"=>"", "second_email"=>"", "phone_mobile"=>"", "street"=>"", "street_number"=>"", "zipcode"=>"", "city"=>"", "country"=>""}, :type => "xls", :column_separator => "", :record_separator => "", :compulsory_headers => {:email => true}})
+        @source = TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/excel/without_headers.xls"].join), :headers_present => false, :user_headers => {"first_name"=>"", "last_name"=>"", "salutation"=>"", "tag_list"=>"", "email"=>"0", "organization"=>"", "url"=>"", "phone"=>"", "job_title"=>"", "second_url"=>"", "notes"=>"", "twitter_username"=>"", "skype_username"=>"", "pinterest_username"=>"", "instagram_username"=>"", "facebook_username"=>"", "last_name_prefix"=>"", "second_email"=>"", "phone_mobile"=>"", "street"=>"", "street_number"=>"", "zipcode"=>"", "city"=>"", "country"=>""}, :type => "xls", :column_separator => "", :record_separator => "", :compulsory_headers => {:email => true}})
       end
 
       it "has the correct number of lines" do
@@ -119,7 +119,7 @@ describe TableImporter::Source do
   context 'when source has empty lines' do
 
     before(:each) do
-      @source = TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/excel/empty_lines.xlsx"].join), :headers_present => false, :headers => nil, :user_headers => nil, :type => "xls", :column_separator => "", :record_separator => "", :compulsory_headers => {:email => true}})
+      @source = TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/excel/empty_lines.xlsx"].join), :headers_present => false, :user_headers => nil, :type => "xls", :column_separator => "", :record_separator => "", :compulsory_headers => {:email => true}})
     end
 
     it "does not throw an error" do
@@ -134,7 +134,7 @@ describe TableImporter::Source do
   context 'when source has 20 empty lines at the beginning' do
 
     before(:each) do
-      @source = TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/excel/empty_lines_at_start.xlsx"].join), :headers_present => true, :headers => nil, :user_headers => nil, :type => "xls", :column_separator => "", :record_separator => "", :compulsory_headers => {:email => true}})
+      @source = TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/excel/empty_lines_at_start.xlsx"].join), :headers_present => true, :user_headers => nil, :type => "xls", :column_separator => "", :record_separator => "", :compulsory_headers => {:email => true}})
     end
 
     it "does not throw an error" do

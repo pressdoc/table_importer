@@ -9,13 +9,9 @@ module TableImporter
         @file = get_file(data[:content].path)
         @compulsory_headers = data[:compulsory_headers]
         @delete_empty_columns = (File.size(data[:content].path) < 100000)
-        @mapping = data[:user_headers].present? ? data[:user_headers] : data[:headers]
+        @mapping = data[:user_headers]
         raise TableImporter::EmptyFileImportError.new if !@file.first_row
-        if !data[:headers].nil?
-          @headers = data[:headers]
-        else
-          @headers = @headers_present ? @file.row(1).map.with_index { |header, index| header.present? ? header.to_sym : "column_#{index}"} : default_headers
-        end
+        @headers = @headers_present ? @file.row(1).map.with_index { |header, index| header.present? ? header.to_sym : "column_#{index}"} : default_headers
       rescue NoMethodError
         raise TableImporter::HeaderMismatchError.new
       end

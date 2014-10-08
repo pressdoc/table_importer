@@ -6,7 +6,6 @@ module TableImporter
 
     def initialize(data)
       @headers_present = data[:headers_present] # user has indicated headers are provided
-      @headers = data[:headers]
       @column_separator, @record_separator = initialize_separators(data[:column_separator], data[:record_separator])
       @compulsory_headers = data[:compulsory_headers]
       @file = data[:content]
@@ -18,7 +17,7 @@ module TableImporter
         end
         get_column_separator(first_line)
         raise TableImporter::EmptyFileImportError.new unless file_has_content
-        @headers = @headers_present ? first_line.split(@column_separator) : default_headers(100) if @headers.blank?
+        @headers = @headers_present ? first_line.split(@column_separator) : default_headers(100)
       rescue ArgumentError
         @file = clean_file(@file)
         @column_separator = get_column_separator
