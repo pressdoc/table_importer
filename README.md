@@ -36,7 +36,13 @@ The options you pass in are:
   # Whether the first row of input contains column headers
   :headers_present => true # First row of input is headers
                       false # First row of input is not headers
-  
+
+  # Optionally you can provide mapping for the columns. (This can be incomplete).
+  :user_headers => {
+                      "email"=>"0", 
+                      "organization"=>"4", 
+                      "url"=>"9"
+                   }
   # Used to separate columns. Pass in 'nil' if using Google Spreadsheet, Excel or you don't know.
   :column_separator => :comma # ','
                        :space # ' '
@@ -54,3 +60,44 @@ The options you pass in are:
                           }
   
 ```
+
+There are a few ways to interact with the table importer:
+
+```
+  importer = TableImporter::Source.new({options})
+
+  # get the type
+  puts importer.get_type
+    => "csv"
+    
+  # get the column separator
+  puts importer.get_column_separator
+    => "semicolon"
+    
+  # get the row separator
+  puts importer.get_record_separator
+    => "newline_mac"
+    
+  # Get the headers (either the first row if headers are provided, or else default headers
+  puts importer.get_headers
+   => "column_1, column_2, column_3"
+   
+  # Gets lines of input
+  # Optionally pass in start and end points, or else it will default to getting all lines
+  puts importer.get_lines
+    => All of the lines
+    
+  puts importer.get_lines(5, 25) 
+    => Line 5 up to line 25
+    
+  puts importer.get_lines(5, -1)
+    => Line 5 to the end of the input.
+    
+  # Get the first 8 lines (useful for providing a matching option for the user to map their own headers, like mailchimps contact import.
+  puts importer.get_preview_lines
+    => [{:column_1 => "r1c1", :column_2 => "r1c2", :column_3 => "r1c3"}, {:column_1 => "r2c1", :column_2 => "r2c2", :column_3 => "r2c3"} etc]
+  
+  # Get input chunked in an input size.
+  puts importer.get_chunks(25)
+    => All input chunked into 25 line blocks.
+    
