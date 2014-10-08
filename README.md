@@ -29,13 +29,19 @@ The options you pass in are:
 ```
   # The type of the spreadsheet/input you want to import
   :type => "google" # Google Drive spreadsheet
-           "csv" # CSV file
-           "xls" # Excel spreadsheet
-           "copy_and_paste" # Copy and pasted input
-           
+        => "csv" # CSV file
+        => "xls" # Excel spreadsheet
+        => "copy_and_paste" # Copy and pasted input
+  
+  # The content to input. Either a file, a string, or google oauth keys.
+  :content => File.open("path/to/file") # for types csv, xls
+           => "Name, Email, Phone Number
+              Nick, nick@example.com, 6412345678" # For type copy_and_paste
+           =>  "google_access_token, spreadsheet_id" # For type google
+  
   # Whether the first row of input contains column headers
   :headers_present => true # First row of input is headers
-                      false # First row of input is not headers
+                   => false # First row of input is not headers
 
   # Optionally you can provide mapping for the columns. (This can be incomplete).
   :user_headers => {
@@ -45,14 +51,14 @@ The options you pass in are:
                    }
   # Used to separate columns. Pass in 'nil' if using Google Spreadsheet, Excel or you don't know.
   :column_separator => :comma # ','
-                       :space # ' '
-                       :tab # '\t'
-                       :semicolon # ';'
+                    => :space # ' '
+                    => :tab # '\t'
+                    => :semicolon # ';'
                        
   # Used to separate rows. Pass in 'nil' if using Google Spreadsheet, Excel or you don't know.
   :record_separator => :newline_mac # '\n'
-                       :newline_windows # '\r\n'
-                       :old_newline_mac # '\r' (from OSX 9 days)
+                    => :newline_windows # '\r\n'
+                    => :old_newline_mac # '\r' (from OSX 9 days)
   
   # A hash of compulsory headers. At the moment only "email" is supported.
   :compulsory_headers => {
