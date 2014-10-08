@@ -6,6 +6,7 @@ module TableImporter
       @data = assign_data(data[:content])
       @column_separator, @record_separator = assign_separators(data[:column_separator], data[:record_separator])
       @headers, @headers_present = assign_headers(data[:headers], data[:headers_present])
+      @mapping = data[:user_headers]
       @compulsory_headers = data[:compulsory_headers]
       @delete_empty_columns = @data.length < 50000
     end
@@ -90,7 +91,7 @@ module TableImporter
     end
 
     def get_chunks(chunk_size)
-      @headers = convert_headers(get_first_line, @headers, @headers_present)
+      @headers = convert_headers(get_first_line, @mapping.present? ? @mapping : @headers, @headers_present)
       lines = get_lines(0, -1).in_groups_of(chunk_size, false)
       clean_chunks(lines, @compulsory_headers)
     end

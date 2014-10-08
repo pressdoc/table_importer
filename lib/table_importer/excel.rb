@@ -5,12 +5,11 @@ module TableImporter
     def initialize(data)
       begin
         @type = File.extname(data[:content]) == ".xls" ? "xls" : "xlsx"
-        @file_path = data[:content].path
         @headers_present = data[:headers_present]
-        @file = get_file
+        @file = get_file(data[:content].path)
         @compulsory_headers = data[:compulsory_headers]
-        @delete_empty_columns = (File.size(@file_path) < 100000)
-        @mapping = !data[:user_headers].blank? ? data[:user_headers] : data[:headers]
+        @delete_empty_columns = (File.size(data[:content].path) < 100000)
+        @mapping = data[:user_headers].present? ? data[:user_headers] : data[:headers]
         raise TableImporter::EmptyFileImportError.new if !@file.first_row
         if !data[:headers].nil?
           @headers = data[:headers]
@@ -22,12 +21,12 @@ module TableImporter
       end
     end
 
-    def get_file
+    def get_file(path)
       begin
         if @type == "xls"
-          Roo::Excel.new(@file_path).sheet(0)
+          Roo::Excel.new(path).sheet(0)
         elsif @type == "xlsx"
-          Roo::Excelx.new(@file_path).sheet(0)
+          Roo::Excelx.new(path).sheet(0)
         end
       rescue TypeError
         raise TableImporter::IncorrectFileError.new
