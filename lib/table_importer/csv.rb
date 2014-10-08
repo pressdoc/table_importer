@@ -36,16 +36,18 @@ module TableImporter
       begin
         SmarterCSV.process(@file.path, default_options({:col_sep => @column_separator.present? ? @column_separator : "\n", :row_sep => @record_separator != nil ? @record_separator : "\n", :chunk_size => 2})) do |chunk|
           if @headers_present
-            keys = chunk.first.keys
-            return keys.count == 1 ? keys[0].to_s : keys.join(@column_separator)
+            return line_count(chunk.first.keys)
           else
-            values = chunk.first.values
-            return values.count == 1 ? values[0].to_s : values.join(@column_separator)
+            return line_count(chunk.first.values)
           end
         end
       rescue EOFError
         raise TableImporter::EmptyFileImportError.new
       end
+    end
+
+    def line_count(vals)
+      vals.count == 1 ? vals[0].to_s : vals.join(@column_separator)
     end
 
     def file_has_content
