@@ -151,7 +151,7 @@ module TableImporter
     def clean_file(file)
       contents = file.read
       import = Tempfile.new(["import", ".xls"], :encoding => "UTF-8")
-      utf8_content = contents.force_encoding('UTF-8').encode('UTF-16', :invalid => :replace, :replace => '?').encode('UTF-8').gsub!(/\r\n|\r/, "\n").squeeze("\n")
+      utf8_content = contents.force_encoding('UTF-8').encode('UTF-16', :invalid => :replace, :replace => '?').encode('UTF-8').gsub(/\r\n|\r/, "\n").squeeze("\n")
       clean_contents = utf8_content[0] == "\n" ? utf8_content[1..-1] : utf8_content
       import.write(clean_contents)
       import.close
