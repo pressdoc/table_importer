@@ -12,7 +12,7 @@ describe TableImporter::Source do
       end
 
       it "gets the preview lines" do
-        @source.get_preview_lines.count.should eql(5)
+        @source.get_preview_lines.count.should eql(6)
       end
 
       it "has the correct type" do
@@ -159,16 +159,40 @@ describe TableImporter::Source do
     end
   end
 
-  context 'mediaprofiler' do
+  context 'premapped_1' do
 
     before(:each) do
-      @source = TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/excel/mediaprofiler.xls"].join), :headers_present => "true", :type => "xls", :column_separator => "", :record_separator => "",
-        :user_headers => {:first_name=>0, :last_name_prefix=>1, :last_name=>2, :organization=>3, :email=>5, :second_email=>6, :phone=>7, :phone_mobile=>8, :twitter_username=>9, :url=>10, :street=>11, :street_number=>12, :zipcode=>13, :country=>18}
+      @source = TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/excel/premapped_1.xls"].join), :headers_present => "true", :type => "xls", :column_separator => "", :record_separator => "",
+        :user_headers => {:first_name=>0, :last_name_prefix=>1, :last_name=>2, :organization=>3, :second_email=>5, :email=>6, :phone=>7, :phone_mobile=>8, :twitter_username=>9, :url=>10, :street=>11, :street_number=>12, :zipcode=>13, :country=>18},
+        :compulsory_headers => {:email => true}
       })
     end
 
     it "has correct mapping" do
       @source.get_preview_lines.first.keys.first.should == :first_name
+    end
+
+    after(:each) do
+      @source = nil
+    end
+  end
+
+  context 'premapped_2' do
+
+    before(:each) do
+      @source = TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/excel/premapped_2.xls"].join), :headers_present => "true", :type => "xls", :column_separator => "", :record_separator => "",
+        :user_headers => {:organization=>0, :salutation=>2, :first_name=>3, :last_name_prefix=>4, :last_name=>5, :street=>6, :zipcode=>9, :city=>10, :country=>11,
+          :url=>12, :email=>13, :phone=>14, :notes=>18, :secondary_tags=>19, cached_tag_list: 24},
+        :compulsory_headers => {:email => true}
+      })
+    end
+
+    it "has correct mapping" do
+      expect(@source.get_preview_lines.first.keys.first).to eql(:organization)
+    end
+
+    it "gets the correct number of preview lines" do
+      expect(@source.get_preview_lines.count).to eql(1)
     end
 
     after(:each) do

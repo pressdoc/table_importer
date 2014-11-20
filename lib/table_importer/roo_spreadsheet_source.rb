@@ -25,7 +25,7 @@ module TableImporter
       finish = [@last_row, start + number_of_lines].min
       mapped_lines = []
       (start...finish).each do |row_number|
-        mapped_lines << Hash[@headers.zip(@file.row(row_number))]
+        mapped_lines << Hash[@headers.zip(@file.row(row_number + 1))]
       end
       mapped_lines
     end
