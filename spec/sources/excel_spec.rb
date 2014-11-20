@@ -12,7 +12,7 @@ describe TableImporter::Source do
       end
 
       it "gets the preview lines" do
-        @source.get_preview_lines.count.should eql(5)
+        @source.get_preview_lines.count.should eql(6)
       end
 
       it "has the correct type" do
@@ -163,7 +163,8 @@ describe TableImporter::Source do
 
     before(:each) do
       @source = TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/excel/mediaprofiler.xls"].join), :headers_present => "true", :type => "xls", :column_separator => "", :record_separator => "",
-        :user_headers => {:first_name=>0, :last_name_prefix=>1, :last_name=>2, :organization=>3, :email=>5, :second_email=>6, :phone=>7, :phone_mobile=>8, :twitter_username=>9, :url=>10, :street=>11, :street_number=>12, :zipcode=>13, :country=>18}
+        :user_headers => {:first_name=>0, :last_name_prefix=>1, :last_name=>2, :organization=>3, :second_email=>5, :email=>6, :phone=>7, :phone_mobile=>8, :twitter_username=>9, :url=>10, :street=>11, :street_number=>12, :zipcode=>13, :country=>18},
+        :compulsory_headers => {:email => true}
       })
     end
 
