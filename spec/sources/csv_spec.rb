@@ -6,7 +6,7 @@ describe TableImporter::Source do
 
   context 'when source is a csv file with headers' do
     before(:each) do
-      @source = TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/csv/with_headers.csv"].join), :headers_present => true, :headers => nil, :user_headers => nil, :type => "csv", :column_separator => "", :record_separator => "", :compulsory_headers => {:email => true}})
+      @source = TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/csv/with_headers.csv"].join), :headers_present => true, :user_headers => nil, :type => "csv", :column_separator => "", :record_separator => "", :compulsory_headers => {:email => true}})
     end
 
     it "has the correct headers" do
@@ -42,20 +42,20 @@ describe TableImporter::Source do
   context 'when source is a csv file without headers it' do
     before(:each) do
       @source_headers = "false"
-      @source = TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/csv/without_headers.csv"].join), :headers_present => false, :headers => nil, :user_headers => nil, :type => "csv", :column_separator => "", :record_separator => "", :compulsory_headers => {:email => true}})
+      @source = TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/csv/without_headers.csv"].join), :headers_present => false, :user_headers => nil, :type => "csv", :column_separator => "", :record_separator => "", :compulsory_headers => {:email => true}})
     end
 
     it "creates a source object" do
-      TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/csv/without_headers.csv"].join), :headers_present => false, :headers => nil, :user_headers => nil, :type => "csv", :column_separator => "", :record_separator => "", :compulsory_headers => {:email => true}})
+      TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/csv/without_headers.csv"].join), :headers_present => false, :user_headers => nil, :type => "csv", :column_separator => "", :record_separator => "", :compulsory_headers => {:email => true}})
     end
 
     it "has the correct number of chunks" do
-      source = TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/csv/without_headers.csv"].join), :headers_present => false, :headers => {"first_name"=>"", "last_name"=>"", "salutation"=>"", "tag_list"=>"", "email"=>"5", "organization"=>"", "url"=>"", "phone"=>"", "job_title"=>"", "second_url"=>"", "notes"=>"", "twitter_username"=>"", "skype_username"=>"", "pinterest_username"=>"", "instagram_username"=>"", "facebook_username"=>"", "last_name_prefix"=>"", "second_email"=>"", "phone_mobile"=>"", "street"=>"", "street_number"=>"", "zipcode"=>"", "city"=>"", "country"=>""}, :user_headers => nil, :type => "csv", :column_separator => :semicolon, :record_separator => :newline_mac, :compulsory_headers => {:email => true}})
+      source = TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/csv/without_headers.csv"].join), :headers_present => false, :user_headers => {"first_name"=>"", "last_name"=>"", "salutation"=>"", "tag_list"=>"", "email"=>"5", "organization"=>"", "url"=>"", "phone"=>"", "job_title"=>"", "second_url"=>"", "notes"=>"", "twitter_username"=>"", "skype_username"=>"", "pinterest_username"=>"", "instagram_username"=>"", "facebook_username"=>"", "last_name_prefix"=>"", "second_email"=>"", "phone_mobile"=>"", "street"=>"", "street_number"=>"", "zipcode"=>"", "city"=>"", "country"=>""}, :type => "csv", :column_separator => :semicolon, :record_separator => :newline_mac, :compulsory_headers => {:email => true}})
       source.get_chunks(4).count.should eql(3)
     end
 
     it "does not have extra spaces in the final chunk" do
-      source = TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/csv/without_headers.csv"].join), :headers_present => false, :headers => {"first_name"=>"", "last_name"=>"", "salutation"=>"", "tag_list"=>"", "email"=>"5", "organization"=>"", "url"=>"", "phone"=>"", "job_title"=>"", "second_url"=>"", "notes"=>"", "twitter_username"=>"", "skype_username"=>"", "pinterest_username"=>"", "instagram_username"=>"", "facebook_username"=>"", "last_name_prefix"=>"", "second_email"=>"", "phone_mobile"=>"", "street"=>"", "street_number"=>"", "zipcode"=>"", "city"=>"", "country"=>""}, :user_headers => nil, :type => "csv", :column_separator => :semicolon, :record_separator => :newline_mac, :compulsory_headers => {:email => true}})
+      source = TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/csv/without_headers.csv"].join), :headers_present => false, :user_headers => {"first_name"=>"", "last_name"=>"", "salutation"=>"", "tag_list"=>"", "email"=>"5", "organization"=>"", "url"=>"", "phone"=>"", "job_title"=>"", "second_url"=>"", "notes"=>"", "twitter_username"=>"", "skype_username"=>"", "pinterest_username"=>"", "instagram_username"=>"", "facebook_username"=>"", "last_name_prefix"=>"", "second_email"=>"", "phone_mobile"=>"", "street"=>"", "street_number"=>"", "zipcode"=>"", "city"=>"", "country"=>""}, :type => "csv", :column_separator => :semicolon, :record_separator => :newline_mac, :compulsory_headers => {:email => true}})
       source.get_chunks(4).last[:lines].count.should eql(1)
     end
 
@@ -67,15 +67,15 @@ describe TableImporter::Source do
   context 'when source is an edge-case csv file without headers' do
     before(:each) do
       @source_headers = "false"
-      @source = TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/csv/edge_cases.csv"].join), :headers_present => false, :headers => nil, :user_headers => nil, :type => "csv", :column_separator => "", :record_separator => "", :compulsory_headers => {:email => true}})
+      @source = TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/csv/edge_cases.csv"].join), :headers_present => false, :user_headers => nil, :type => "csv", :column_separator => "", :record_separator => "", :compulsory_headers => {:email => true}})
     end
 
     it "creates a source object" do
-      TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/csv/edge_cases.csv"].join), :headers_present => false, :headers => nil, :user_headers => nil, :type => "csv", :column_separator => "", :record_separator => "", :compulsory_headers => {:email => true}})
+      TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/csv/edge_cases.csv"].join), :headers_present => false, :user_headers => nil, :type => "csv", :column_separator => "", :record_separator => "", :compulsory_headers => {:email => true}})
     end
 
     it "has the correct number of chunks" do
-      source = TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/csv/edge_cases.csv"].join), :headers_present => false, :headers => {"first_name"=>"", "last_name"=>"", "salutation"=>"", "tag_list"=>"", "email"=>"1", "organization"=>"", "url"=>"", "phone"=>"", "job_title"=>"", "second_url"=>"", "notes"=>"", "twitter_username"=>"", "skype_username"=>"", "pinterest_username"=>"", "instagram_username"=>"", "facebook_username"=>"", "last_name_prefix"=>"", "second_email"=>"", "phone_mobile"=>"", "street"=>"", "street_number"=>"", "zipcode"=>"", "city"=>"", "country"=>""}, :user_headers => nil, :type => "csv", :column_separator => "", :record_separator => "", :compulsory_headers => {:email => true}})
+      source = TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/csv/edge_cases.csv"].join), :headers_present => false, :user_headers => {"first_name"=>"", "last_name"=>"", "salutation"=>"", "tag_list"=>"", "email"=>"1", "organization"=>"", "url"=>"", "phone"=>"", "job_title"=>"", "second_url"=>"", "notes"=>"", "twitter_username"=>"", "skype_username"=>"", "pinterest_username"=>"", "instagram_username"=>"", "facebook_username"=>"", "last_name_prefix"=>"", "second_email"=>"", "phone_mobile"=>"", "street"=>"", "street_number"=>"", "zipcode"=>"", "city"=>"", "country"=>""}, :type => "csv", :column_separator => "", :record_separator => "", :compulsory_headers => {:email => true}})
       source.get_chunks(4).count.should eql(3)
     end
 
@@ -86,7 +86,7 @@ describe TableImporter::Source do
 
   context 'when source is a badly encoded file' do
     it 'can still get the correct chunks' do
-      source = TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/csv/mexico2013_pressdoc.csv"].join), :headers_present => true, :headers => nil, :user_headers => nil, :type => "csv", :column_separator => "", :record_separator => "", :compulsory_headers => {:email => true}})
+      source = TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/csv/mexico2013_pressdoc.csv"].join), :headers_present => true, :user_headers => nil, :type => "csv", :column_separator => "", :record_separator => "", :compulsory_headers => {:email => true}})
       source.get_chunks.first[:lines].count.should eql(49)
     end
   end
@@ -95,7 +95,7 @@ describe TableImporter::Source do
 
     it 'raises an error when creating a source object' do
       begin
-        TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/csv/no_content.csv"].join), :headers_present => true, :headers => nil, :user_headers => nil, :type => "csv", :column_separator => "", :record_separator => "", :compulsory_headers => {:email => true}})
+        TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/csv/no_content.csv"].join), :headers_present => true, :user_headers => nil, :type => "csv", :column_separator => "", :record_separator => "", :compulsory_headers => {:email => true}})
       rescue TableImporter::EmptyFileImportError => e
         e.message
       end
@@ -105,7 +105,7 @@ describe TableImporter::Source do
   context 'when source has empty lines at start' do
 
     before(:each) do
-      @source = TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/csv/empty_lines_at_start.csv"].join), :headers_present => true, :headers => nil, :user_headers => nil, :type => "csv", :column_separator => "", :record_separator => "", :compulsory_headers => {:email => true}})
+      @source = TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/csv/empty_lines_at_start.csv"].join), :headers_present => true, :user_headers => nil, :type => "csv", :column_separator => "", :record_separator => "", :compulsory_headers => {:email => true}})
     end
 
     it "Gets the preview lines without error" do
@@ -120,7 +120,7 @@ describe TableImporter::Source do
   context 'when source is badly encoded partway through the file' do
 
     before(:each) do
-      @source = TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/csv/partway.csv"].join), :headers_present => false, :headers => nil, :user_headers => nil, :type => "csv", :column_separator => "", :record_separator => "", :compulsory_headers => {:email => true}})
+      @source = TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/csv/partway.csv"].join), :headers_present => false, :user_headers => nil, :type => "csv", :column_separator => "", :record_separator => "", :compulsory_headers => {:email => true}})
     end
 
     it "Gets the first chunk without error" do

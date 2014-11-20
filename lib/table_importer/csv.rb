@@ -6,7 +6,6 @@ module TableImporter
 
     def initialize(data)
       @headers_present = data[:headers_present] # user has indicated headers are provided
-      @headers = data[:headers]
       @column_separator, @record_separator = initialize_separators(data[:column_separator], data[:record_separator])
       @compulsory_headers = data[:compulsory_headers]
       @file = data[:content]
@@ -18,7 +17,7 @@ module TableImporter
         end
         get_column_separator(first_line)
         raise TableImporter::EmptyFileImportError.new unless file_has_content
-        @headers = @headers_present ? first_line.split(@column_separator) : default_headers(100) if @headers.blank?
+        @headers = @headers_present ? first_line.split(@column_separator) : default_headers(100)
       rescue ArgumentError
         @file = clean_file(@file)
         @column_separator = get_column_separator
@@ -36,16 +35,18 @@ module TableImporter
       begin
         SmarterCSV.process(@file.path, default_options({:col_sep => @column_separator.present? ? @column_separator : "\n", :row_sep => @record_separator != nil ? @record_separator : "\n", :chunk_size => 2})) do |chunk|
           if @headers_present
-            keys = chunk.first.keys
-            return keys.count == 1 ? keys[0].to_s : keys.join(@column_separator)
+            return line_count(chunk.first.keys)
           else
-            values = chunk.first.values
-            return values.count == 1 ? values[0].to_s : values.join(@column_separator)
+            return line_count(chunk.first.values)
           end
         end
       rescue EOFError
         raise TableImporter::EmptyFileImportError.new
       end
+    end
+
+    def line_count(vals)
+      vals.count == 1 ? vals[0].to_s : vals.join(@column_separator)
     end
 
     def file_has_content
