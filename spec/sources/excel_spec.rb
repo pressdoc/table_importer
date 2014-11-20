@@ -167,7 +167,7 @@ describe TableImporter::Source do
     end
 
     it "has correct mapping" do
-      @source.get_chunks[0][:lines].first.keys.first.should == :first_name
+      expect(@source.get_preview_lines.first.keys.first).to eql(:first_name)
     end
 
     after(:each) do
