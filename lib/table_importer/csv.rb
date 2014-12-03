@@ -17,6 +17,7 @@ module TableImporter
         end
         get_column_separator(first_line)
         raise TableImporter::EmptyFileImportError.new unless file_has_content
+        @mapping = data[:user_headers]
         @headers = @headers_present ? first_line.split(@column_separator) : default_headers(100)
       rescue ArgumentError
         @file = clean_file(@file)
@@ -114,12 +115,12 @@ module TableImporter
     end
 
     def chunks_with_headers(chunk_size)
-      key_mapping = convert_headers(SmarterCSV.process(@file.path, default_options).first.keys, @headers, @headers_present).delete_if{ |key, value| value.blank?}
+      key_mapping = convert_headers(SmarterCSV.process(@file.path, default_options).first.keys, @mapping, @headers_present).delete_if{ |key, value| value.blank?}
       SmarterCSV.process(@file.path, default_options({:chunk_size => chunk_size, :key_mapping => key_mapping, :remove_unmapped_keys => true, :user_provided_headers => nil}))
     end
 
     def chunks_without_headers(chunk_size)
-      user_provided_headers = convert_headers(SmarterCSV.process(@file.path, default_options).first.keys, @headers, @headers_present).values
+      user_provided_headers = convert_headers(SmarterCSV.process(@file.path, default_options).first.keys, @mapping, @headers_present).values
       SmarterCSV.process(@file.path, default_options({:chunk_size => chunk_size, :user_provided_headers => user_provided_headers, :remove_empty_values => true}))
     end
 
