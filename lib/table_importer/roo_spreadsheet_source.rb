@@ -6,10 +6,11 @@ module TableImporter
       @headers
     end
 
-    def get_preview_lines(start_point = 0, end_point = 10)
+    def get_preview_lines(start_point = 1, end_point = 10)
       begin
         @headers = @mapping.present? && @mapping != false ? convert_headers : @headers
-        lines = clean_chunks([get_lines(start_point, end_point)], @compulsory_headers)[0][:lines]
+        start_point += 1 if @headers_present == true
+        lines = clean_chunks([get_lines(start_point, end_point, true)], @compulsory_headers)[0][:lines]
         if lines.first.nil?
           get_preview_lines(start_point+10, end_point+10)
         else
@@ -20,12 +21,13 @@ module TableImporter
       end
     end
 
-    def get_lines(start, number_of_lines)
+    def get_lines(start, number_of_lines, preview_lines = false)
       @last_row ||= @file.last_row
       finish = [@last_row, start + number_of_lines].min
       mapped_lines = []
-      (start...finish).each do |row_number|
-        mapped_lines << Hash[@headers.zip(@file.row(row_number + 1))]
+      range = preview_lines ? (start..finish) : (start...finish)
+      range.each do |row_number|
+        mapped_lines << Hash[@headers.zip(@file.row(row_number))]
       end
       mapped_lines
     end

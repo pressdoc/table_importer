@@ -38,6 +38,10 @@ describe TableImporter::Source do
         @source.get_chunks(1).count.should eql(6)
       end
 
+      it "gets the correct chunk content" do
+        expect(@source.get_chunks[0][:lines].first[:email]).to eql("darrenp@fabrikam.com")
+      end
+
       it "has the correct number of chunks" do
         @source.get_chunks(2).count.should eql(4)
       end
@@ -76,6 +80,10 @@ describe TableImporter::Source do
 
       it "has the correct number of lines" do
         @source.get_chunks(1).count.should eql(6)
+      end
+
+      it "gets the correct chunk content" do
+        expect(@source.get_chunks[0][:lines].first[:email]).to eql("darrenp@fabrikam.com")
       end
 
       it "has the correct number of chunks" do
@@ -195,6 +203,40 @@ describe TableImporter::Source do
 
     after(:each) do
       @source = nil
+    end
+  end
+
+  context "it has only one line" do
+    context "when mapping has not been set" do
+      before(:each) do
+        @source = TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/excel/one_line.xls"].join), :headers_present => "true", :type => "xls", :column_separator => "", :record_separator => "",
+          :compulsory_headers => {:email => true}
+        })
+      end
+
+      it 'has the correct preview lines' do
+        expect(@source.get_preview_lines.first[:Email]).to eql("mailto:john.smith@example.com")
+      end
+
+      after(:each) do
+        @source = nil
+      end
+    end
+
+    context "when mapping has been set" do
+      before(:each) do
+        @source = TableImporter::Source.new({content: File.open([Dir.pwd, "/spec/files/excel/one_line.xls"].join), headers_present: "true", type: "xls", column_separator: "", record_separator: "",
+          compulsory_headers: {email: true}, user_headers: {"email" => "13"}
+        })
+      end
+
+      it 'has the correct chunks' do
+        expect(@source.get_chunks[0][:lines].first[:email]).to eql("mailto:john.smith@example.com")
+      end
+
+      after(:each) do
+        @source = nil
+      end
     end
   end
 end
