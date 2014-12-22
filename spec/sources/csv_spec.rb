@@ -6,7 +6,7 @@ describe TableImporter::Source do
 
   context 'when source is a csv file with headers' do
     before(:each) do
-      @source = TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/csv/with_headers.csv"].join), :headers_present => true, :user_headers => nil, :type => "csv", :column_separator => "", :record_separator => "", :compulsory_headers => {:email => true}})
+      @source = TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/csv/with_headers.csv"].join), :headers_present => true, :user_headers => {"email" => "5"}, :type => "csv", :column_separator => "", :record_separator => "", :compulsory_headers => {:email => true}})
     end
 
     it "has the correct headers" do
@@ -86,7 +86,7 @@ describe TableImporter::Source do
 
   context 'when source is a badly encoded file' do
     it 'can still get the correct chunks' do
-      source = TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/csv/mexico2013_pressdoc.csv"].join), :headers_present => true, :user_headers => nil, :type => "csv", :column_separator => "", :record_separator => "", :compulsory_headers => {:email => true}})
+      source = TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/csv/mexico2013_pressdoc.csv"].join), :headers_present => true, :user_headers => {"email" => "5"}, :type => "csv", :column_separator => "", :record_separator => "", :compulsory_headers => {:email => true}})
       source.get_chunks.first[:lines].count.should eql(49)
     end
   end
@@ -120,7 +120,7 @@ describe TableImporter::Source do
   context 'when source is badly encoded partway through the file' do
 
     before(:each) do
-      @source = TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/csv/partway.csv"].join), :headers_present => false, :user_headers => nil, :type => "csv", :column_separator => "", :record_separator => "", :compulsory_headers => {:email => true}})
+      @source = TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/csv/partway.csv"].join), :headers_present => false, :user_headers => {"email" => "0"}, :type => "csv", :column_separator => "", :record_separator => "", :compulsory_headers => {:email => true}})
     end
 
     it "Gets the first chunk without error" do
