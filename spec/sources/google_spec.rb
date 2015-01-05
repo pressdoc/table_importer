@@ -16,6 +16,7 @@ describe TableImporter::Source do
           :type => "google",
           :column_separator => "",
           :record_separator => "",
+          :sheet => 0,
           :compulsory_headers =>
             {:email => true}
           })
