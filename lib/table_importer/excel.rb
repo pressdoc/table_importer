@@ -6,7 +6,7 @@ module TableImporter
       begin
         @type = File.extname(data[:content]) == ".xls" ? "xls" : "xlsx"
         @headers_present = data[:headers_present]
-        @file = get_file(data[:content].path, data[:sheet])
+        @file = get_file(data[:content].path, data[:sheet].present? ? data[:sheet] : 0)
         @compulsory_headers = data[:compulsory_headers]
         @delete_empty_columns = (File.size(data[:content].path) < 100000)
         @mapping = data[:user_headers]
@@ -25,7 +25,7 @@ module TableImporter
       @file.instance_variable_get(:@label).values.first.first
     end
 
-    def get_file(path, sheet = 0)
+    def get_file(path, sheet)
       begin
         if @type == "xls"
           Roo::Excel.new(path).sheet(sheet)
