@@ -1,3 +1,5 @@
+require 'roo'
+
 module TableImporter
 
   class Source
