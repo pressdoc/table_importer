@@ -131,4 +131,17 @@ describe TableImporter::Source do
       @source = nil
     end
   end
+
+  context 'when source has NULL values in it' do
+
+    it "Skips the null values if specified" do
+      source = TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/csv/null_values.csv"].join), :headers_present => false, :user_headers => { "email" => "5" }, :type => "csv", :column_separator => "", :record_separator => "", :compulsory_headers => { email: true }, remove_nil_values: true })
+      expect(source.get_chunks[0][:lines].first[:column_4]).to eql(nil)
+    end
+
+    it "Doesn't skip the null values if not specified" do
+      source = TableImporter::Source.new({:content => File.open([Dir.pwd, "/spec/files/csv/null_values.csv"].join), :headers_present => false, :user_headers => { "email" => "5" }, :type => "csv", :column_separator => "", :record_separator => "", :compulsory_headers => { email: true }, remove_nil_values: false })
+      expect(source.get_chunks[0][:lines].first[:column_4]).to eql("NULL")
+    end
+  end
 end

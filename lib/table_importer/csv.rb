@@ -5,12 +5,16 @@ module TableImporter
 
   class CSV < Source
 
+    attr_accessor :remove_nil_values
+
     def initialize(data)
       @headers_present = data[:headers_present] # user has indicated headers are provided
       @column_separator, @record_separator = initialize_separators(data[:column_separator], data[:record_separator])
       @compulsory_headers = data[:compulsory_headers]
       @file = data[:content]
       @delete_empty_columns = File.size(@file) < 100000
+      @remove_nil_values = data[:remove_nil_values] == true
+
       begin
         first_line = get_first_line
         if first_line == 0
@@ -145,9 +149,17 @@ module TableImporter
     end
 
     def default_options(options = {})
-      {:col_sep => @column_separator, :row_sep => @record_separator, :force_simple_split => true, :strip_chars_from_headers => /[\-"]/, :remove_empty_values => false,
-        :verbose => false, :headers_in_file => @headers_present, :convert_values_to_numeric => false,
-        :user_provided_headers => @headers_present ? (@headers == nil || @headers == {} ? nil : @headers) : default_headers(100)}.merge(options)
+      {
+        :col_sep => @column_separator,
+        :row_sep => @record_separator,
+        :force_simple_split => true,
+        :strip_chars_from_headers => /[\-"]/,
+        :remove_empty_values => false,
+        :verbose => false,
+        :headers_in_file => @headers_present,
+        :convert_values_to_numeric => false,
+        :user_provided_headers => @headers_present ? (@headers == nil || @headers == {} ? nil : @headers) : default_headers(100)
+      }.merge(options)
     end
 
     def clean_file(file)
