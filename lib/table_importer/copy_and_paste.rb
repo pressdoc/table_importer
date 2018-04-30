@@ -2,6 +2,8 @@ module TableImporter
 
   class CopyAndPaste < Source
 
+    attr_accessor :remove_nil_values
+
     def initialize(data)
       @data = assign_data(data[:content])
       @column_separator, @record_separator = assign_separators(data[:column_separator], data[:record_separator])
@@ -9,6 +11,7 @@ module TableImporter
       @mapping = data[:user_headers]
       @compulsory_headers = data[:compulsory_headers]
       @delete_empty_columns = @data.length < 50000
+      @remove_nil_values = data[:remove_nil_values] == true
     end
 
     def assign_data(content)

@@ -1,10 +1,15 @@
 require 'roo'
+require 'roo-xls'
+require 'roo-google'
 
 module TableImporter
 
   class Source
 
-    SEPARATORS = {comma: ",", space: " ", tab: "\t", newline_mac: "\n", semicolon: ";", newline_windows: "\r\n", old_newline_mac: "\r"}
+
+    NIL_VALUES = %w( NULL null nil undefined )
+
+    SEPARATORS = { comma: ",", space: " ", tab: "\t", newline_mac: "\n", semicolon: ";", newline_windows: "\r\n", old_newline_mac: "\r" }
 
     def initialize (data)
       case data[:type]
@@ -108,26 +113,34 @@ module TableImporter
     def check_empty_headers(line, empty_headers)
       line.each do |key, value|
         if value.present? && value.to_s.gsub(/[^A-Za-z0-9]/, '').present?
-          empty_headers.delete(clean_item(key).to_sym)
+          empty_headers.delete(clean_key(key).to_sym)
         end
       end
     end
 
     def line_empty?(line)
       line = clean_line(line)
-      return line, line.all?{ |item_key, item_value| line_item_is_garbage?(item_value)} && line.all?{ |item_key, item_value| line_item_is_garbage?(item_key)}
+      return line, line.all?{ |_, item_value| line_item_is_garbage?(item_value) } && line.all?{ |item_key, _| line_item_is_garbage?(item_key) }
     end
 
     def clean_line(line)
       map = {}
-      line.each_pair do |key,value|
-        map[clean_item(key).to_sym] = clean_item(value)
+      line.each_pair do |key, value|
+        map[clean_key(key).to_sym] = clean_value(value)
       end
-      map
+      return map
     end
 
-    def clean_item(item)
-      item.to_s.delete("\u0000").to_s.delete("\x00")
+    def clean_value(item)
+      if remove_nil_values == true && NIL_VALUES.include?(item.to_s)
+        return nil
+      end
+
+      return item.to_s.delete("\u0000").to_s.delete("\x00")
+    end
+
+    def clean_key(item)
+      return item.to_s.delete("\u0000").to_s.delete("\x00")
     end
 
     def check_compulsory_headers?(line, compulsory_headers)

@@ -12,12 +12,11 @@ describe TableImporter::Source do
           :content => 'CLIENT_ID, ACCESS_TOKEN',
           :headers_present => true,
           :user_headers => nil,
-          :user_headers => nil,
           :type => "google",
           :column_separator => "",
           :record_separator => "",
           :compulsory_headers =>
-            {:email => true}
+            { :email => true }
           })
       end
     end
