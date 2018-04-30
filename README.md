@@ -64,13 +64,18 @@ The options you pass in are:
   :compulsory_headers => {
                             :email => true, false # Does each record require an email address to be valid?
                           }
+
+  # Whether nil values that are a string (ie strings that equal "NULL", "null", "nil", or "undefined") should be replaced with actual nil values.
+  :remove_nil_values => true
+  :remove_nil_values => false
   
 ```
 
 There are a few ways to interact with the table importer:
 
 ```
-  importer = TableImporter::Source.new({options})
+  options = { type: "csv",  }
+  importer = TableImporter::Source.new(options)
 
   # get the type
   puts importer.get_type
@@ -88,7 +93,7 @@ There are a few ways to interact with the table importer:
   puts importer.get_headers
    => "column_1, column_2, column_3"
   
-  # Get the first 8 lines (useful for providing a matching option for the user to map their own headers, like mailchimps contact import.
+  # Get the first 8 lines (useful for providing a matching option for the user to map their own headers, like Mailchimp's contact import.
   puts importer.get_preview_lines
     => [{:column_1 => "r1c1", :column_2 => "r1c2", :column_3 => "r1c3"}, {:column_1 => "r2c1", :column_2 => "r2c2", :column_3 => "r2c3"} etc]
   
@@ -99,7 +104,7 @@ There are a few ways to interact with the table importer:
   puts importer.get_chunks(25)
     => All input chunked into 25 line blocks.
   
-  # The format for the returned chunks is not a simple array of hashes, like get_preview_lines
+  # The format for the returned chunks is not a simple array of hashes, like get_preview_lines, as it also includes per-row errors
   puts importer.get_chunks(2)
     => [{:lines => [{:column_1 => "r1c1", :column_2 => "r1c2", :column_3 => "r1c3"}, {:column_1 => "r2c1", :column_2 => "r2c2", :column_3 => "r2c3"}], :errors => []}, {:lines => [{:column_1 => "r3c1", :column_2 => "r3c2", :column_3 => "r3c3"}, {:column_1 => "r4c1", :column_2 => "r4c2", :column_3 => "r4c3"}], :errors => []}]
 
