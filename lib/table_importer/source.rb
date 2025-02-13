@@ -1,6 +1,5 @@
 require 'roo'
 require 'roo-xls'
-require 'roo-google'
 
 module TableImporter
 
@@ -19,8 +18,6 @@ module TableImporter
         @source = CSV.new(data)
       when 'xls', 'xlsx'
         @source = Excel.new(data)
-      when 'google'
-        @source = Google.new(data)
       else
         raise TableImporter::IncorrectFileError.new
       end
@@ -186,4 +183,3 @@ require 'table_importer/csv'
 require 'table_importer/copy_and_paste'
 require 'table_importer/roo_spreadsheet_source'
 require 'table_importer/excel'
-require 'table_importer/google'
